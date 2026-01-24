@@ -1,15 +1,17 @@
-import {App, PluginSettingTab, Setting} from "obsidian";
-import MyPlugin from "./main";
+import { App, PluginSettingTab, Setting } from "obsidian";
+import type MyPlugin from "./main";
 
-export interface MyPluginSettings {
-	mySetting: string;
+export interface AtProtoSettings {
+	identifier: string;
+	appPassword: string;
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+export const DEFAULT_SETTINGS: AtProtoSettings = {
+	identifier: "",
+	appPassword: "",
+};
 
-export class SampleSettingTab extends PluginSettingTab {
+export class SettingTab extends PluginSettingTab {
 	plugin: MyPlugin;
 
 	constructor(app: App, plugin: MyPlugin) {
@@ -18,19 +20,34 @@ export class SampleSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
-
+		const { containerEl } = this;
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Settings #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+			.setName("Handle or DID")
+			.setDesc("Your Bluesky handle (e.g., user.bsky.social) or DID")
+			.addText((text) =>
+				text
+					.setPlaceholder("user.bsky.social")
+					.setValue(this.plugin.settings.identifier)
+					.onChange(async (value) => {
+						this.plugin.settings.identifier = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("App Password")
+			.setDesc("Create one at Settings → Privacy and Security → App Passwords")
+			.addText((text) => {
+				text.inputEl.type = "password";
+				text
+					.setPlaceholder("xxxx-xxxx-xxxx-xxxx")
+					.setValue(this.plugin.settings.appPassword)
+					.onChange(async (value) => {
+						this.plugin.settings.appPassword = value;
+						await this.plugin.saveSettings();
+					});
+			});
 	}
 }

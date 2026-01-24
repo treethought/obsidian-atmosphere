@@ -1,99 +1,113 @@
-import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
-import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
-
-// Remember to rename these classes and interfaces!
+import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
+import type { Client } from "@atcute/client";
+import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
+import { createAuthenticatedClient, createPublicClient } from "./auth";
+import { getCollections } from "./lib";
+import { SembleCollectionsView, VIEW_TYPE_SEMBLE_COLLECTIONS } from "views/collections";
 
 export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+	settings: AtProtoSettings = DEFAULT_SETTINGS;
+	client: Client | null = null;
 
 	async onload() {
 		await this.loadSettings();
+		await this.initClient();
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+		this.registerView(VIEW_TYPE_SEMBLE_COLLECTIONS, (leaf) => {
+			return new SembleCollectionsView(leaf, this);
 		});
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
 
-		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
+			id: "list-collections",
+			name: "List Collections",
+			callback: () => this.listCollections(),
 		});
-		// This adds an editor command that can perform some operation on the current editor instance
+
 		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				editor.replaceSelection('Sample editor command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			}
+			id: "view-semble-collections",
+			name: "View Semble Collections",
+			callback: () => this.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS),
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			new Notice("Click");
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-
+		this.addSettingTab(new SettingTab(this.app, this));
 	}
 
-	onunload() {
+
+	private async initClient() {
+		const { identifier, appPassword } = this.settings;
+		if (identifier && appPassword) {
+			try {
+				this.client = await createAuthenticatedClient({ identifier, password: appPassword });
+				new Notice("Connected to Bluesky");
+			} catch (e) {
+				new Notice(`Auth failed: ${e}`);
+				this.client = createPublicClient();
+			}
+		} else {
+			this.client = createPublicClient();
+		}
+	}
+
+	async refreshClient() {
+		await this.initClient();
+	}
+
+	private async listCollections() {
+		if (!this.client) return;
+
+		const repo = this.settings.identifier
+
+		try {
+			const resp = await getCollections(this.client, repo);
+			if (!resp.ok) {
+				new Notice(`Failed: ${resp.data?.error}`);
+				return;
+			}
+			if (resp.data.records.length === 0) {
+				new Notice("No collections found");
+				return;
+			}
+			console.log("Collections:", resp.data.records);
+			new Notice(`Found ${resp.data.records.length} collections`);
+		} catch (e) {
+			new Notice(`Failed: ${e}`);
+		}
+	}
+
+	async activateView(v: string) {
+		const { workspace } = this.app;
+
+		let leaf: WorkspaceLeaf | null = null;
+		const leaves = workspace.getLeavesOfType(v);
+
+		if (leaves.length > 0) {
+			console.log("Found existing leaves:", leaves);
+			// A leaf with our view already exists, use that
+			leaf = leaves[0] as WorkspaceLeaf;
+			workspace.revealLeaf(leaf);
+			return;
+		}
+
+		// Our view could not be found in the workspace, create a new leaf
+		// in the right sidebar for it
+		// leaf = workspace.getRightLeaf(false);
+		leaf = workspace.getMostRecentLeaf()
+		await leaf?.setViewState({ type: v, active: true });
+
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		if (leaf) {
+			workspace.revealLeaf(leaf);
+		}
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<MyPluginSettings>);
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
-}
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
+	onunload() { }
 }
