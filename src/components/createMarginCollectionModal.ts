@@ -20,7 +20,7 @@ export class CreateMarginCollectionModal extends Modal {
 		contentEl.createEl("h2", { text: "New margin collection" });
 
 		if (!this.plugin.client) {
-			contentEl.createEl("p", { text: "Not connected." });
+			// contentEl.createEl("p", { text: "Not Logged In. Please Login Using Settings." });
 			return;
 		}
 
@@ -41,7 +41,7 @@ export class CreateMarginCollectionModal extends Modal {
 		const iconInput = iconGroup.createEl("input", {
 			type: "text",
 			cls: "atmark-input",
-			attr: { id: "collection-icon", placeholder: "e.g., 📚" },
+			attr: { id: "collection-icon" },
 		});
 
 		// Description field
