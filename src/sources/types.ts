@@ -14,12 +14,13 @@ export interface ATmarkItem {
 
 export interface SourceFilter {
 	type: string;
-	value: any;
+	value: string;
+	label?: string;
 }
 
 export interface DataSource {
 	readonly name: "semble" | "bookmark";
 	fetchItems(filters: SourceFilter[], plugin: ATmarkPlugin): Promise<ATmarkItem[]>;
 	getAvailableFilters(): Promise<SourceFilter[]>;
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, any>, onChange: () => void, plugin: ATmarkPlugin): void;
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void;
 }

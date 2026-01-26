@@ -20,8 +20,8 @@ export default class ATmarkPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: "view-atmark",
-			name: "View ATmark",
+			id: "view",
+			name: "Open view",
 			callback: () => { void this.activateView(VIEW_TYPE_ATMARK); },
 		});
 

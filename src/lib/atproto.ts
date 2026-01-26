@@ -21,13 +21,13 @@ export async function deleteRecord(client: Client, repo: string, collection: str
 	});
 }
 
-export async function putRecord(client: Client, repo: string, collection: string, rkey: string, record: any) {
+export async function putRecord<T = unknown>(client: Client, repo: string, collection: string, rkey: string, record: T) {
 	return await client.post("com.atproto.repo.putRecord", {
 		input: {
 			repo: repo as ActorIdentifier,
 			collection: collection as Nsid,
 			rkey,
-			record,
+			record: record as unknown as { [key: string]: unknown },
 		},
 	});
 }

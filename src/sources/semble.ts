@@ -1,16 +1,25 @@
 import type { Client } from "@atcute/client";
+import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import { setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { getCards, getCollections, getCollectionLinks } from "../lib";
-import type { NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
+import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
+import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
+import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
 import type { ATmarkItem, DataSource, SourceFilter } from "./types";
+import { EditCardModal } from "../components/editCardModal";
+import { CreateCollectionModal } from "../components/createCollectionModal";
+
+type CardRecord = Record & { value: Card };
+type CollectionRecord = Record & { value: Collection };
+type CollectionLinkRecord = Record & { value: CollectionLink };
 
 class SembleItem implements ATmarkItem {
-	private record: any;
+	private record: CardRecord;
 	private attachedNotes: Array<{ uri: string; text: string }>;
 	private plugin: ATmarkPlugin;
 
-	constructor(record: any, attachedNotes: Array<{ uri: string; text: string }>, plugin: ATmarkPlugin) {
+	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, plugin: ATmarkPlugin) {
 		this.record = record;
 		this.attachedNotes = attachedNotes;
 		this.plugin = plugin;
@@ -25,7 +34,7 @@ class SembleItem implements ATmarkItem {
 	}
 
 	getCreatedAt(): string {
-		return this.record.value.createdAt;
+		return this.record.value.createdAt || new Date().toISOString();
 	}
 
 	getSource(): "semble" {
@@ -41,14 +50,13 @@ class SembleItem implements ATmarkItem {
 	}
 
 	openEditModal(onSuccess?: () => void): void {
-		const { EditCardModal } = require("../components/editCardModal");
 		new EditCardModal(this.plugin, this.record.uri, this.record.cid, onSuccess).open();
 	}
 
 	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "semble-card-content" });
+		const el = container.createEl("div", { cls: "atmark-item-content" });
 
-		// Display attached notes
+		// Display attached notes (semble-specific)
 		if (this.attachedNotes.length > 0) {
 			for (const note of this.attachedNotes) {
 				el.createEl("p", { text: note.text, cls: "semble-card-note" });
@@ -65,11 +73,11 @@ class SembleItem implements ATmarkItem {
 			const meta = content.metadata;
 
 			if (meta?.title) {
-				el.createEl("div", { text: meta.title, cls: "semble-card-title" });
+				el.createEl("div", { text: meta.title, cls: "atmark-item-title" });
 			}
 
 			if (meta?.imageUrl) {
-				const img = el.createEl("img", { cls: "semble-card-image" });
+				const img = el.createEl("img", { cls: "atmark-item-image" });
 				img.src = meta.imageUrl;
 				img.alt = meta.title || "Image";
 			}
@@ -78,24 +86,24 @@ class SembleItem implements ATmarkItem {
 				const desc = meta.description.length > 200
 					? meta.description.slice(0, 200) + "…"
 					: meta.description;
-				el.createEl("p", { text: desc, cls: "semble-card-desc" });
+				el.createEl("p", { text: desc, cls: "atmark-item-desc" });
 			}
 
 			if (meta?.siteName) {
-				el.createEl("span", { text: meta.siteName, cls: "semble-card-site" });
+				el.createEl("span", { text: meta.siteName, cls: "atmark-item-site" });
 			}
 
 			const link = el.createEl("a", {
 				text: content.url,
 				href: content.url,
-				cls: "semble-card-url",
+				cls: "atmark-item-url",
 			});
 			link.setAttr("target", "_blank");
 		}
 	}
 
 	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "semble-detail-body" });
+		const body = container.createEl("div", { cls: "atmark-detail-body" });
 		const card = this.record.value;
 
 		if (card.type === "NOTE") {
@@ -106,51 +114,35 @@ class SembleItem implements ATmarkItem {
 			const meta = content.metadata;
 
 			if (meta?.title) {
-				body.createEl("h2", { text: meta.title, cls: "semble-detail-title" });
+				body.createEl("h2", { text: meta.title, cls: "atmark-detail-title" });
 			}
 
 			if (meta?.imageUrl) {
-				const img = body.createEl("img", { cls: "semble-detail-image" });
+				const img = body.createEl("img", { cls: "atmark-detail-image" });
 				img.src = meta.imageUrl;
 				img.alt = meta.title || "Image";
 			}
 
 			if (meta?.description) {
-				body.createEl("p", { text: meta.description, cls: "semble-detail-description" });
+				body.createEl("p", { text: meta.description, cls: "atmark-detail-description" });
 			}
 
 			if (meta?.siteName) {
-				const metaGrid = body.createEl("div", { cls: "semble-detail-meta" });
-				const item = metaGrid.createEl("div", { cls: "semble-detail-meta-item" });
-				item.createEl("span", { text: "Site", cls: "semble-detail-meta-label" });
-				item.createEl("span", { text: meta.siteName, cls: "semble-detail-meta-value" });
+				const metaGrid = body.createEl("div", { cls: "atmark-detail-meta" });
+				const item = metaGrid.createEl("div", { cls: "atmark-detail-meta-item" });
+				item.createEl("span", { text: "Site", cls: "atmark-detail-meta-label" });
+				item.createEl("span", { text: meta.siteName, cls: "atmark-detail-meta-value" });
 			}
 
-			const linkWrapper = body.createEl("div", { cls: "semble-detail-link-wrapper" });
+			const linkWrapper = body.createEl("div", { cls: "atmark-detail-link-wrapper" });
 			const link = linkWrapper.createEl("a", {
 				text: content.url,
 				href: content.url,
-				cls: "semble-detail-link",
+				cls: "atmark-detail-link",
 			});
 			link.setAttr("target", "_blank");
 		}
 
-		// Attached notes section
-		if (this.attachedNotes.length > 0) {
-			const notesSection = container.createEl("div", { cls: "semble-detail-notes-section" });
-			notesSection.createEl("h3", { text: "Notes", cls: "semble-detail-section-title" });
-
-			for (const note of this.attachedNotes) {
-				const noteEl = notesSection.createEl("div", { cls: "semble-detail-note" });
-
-				const noteContent = noteEl.createEl("div", { cls: "semble-detail-note-content" });
-				const noteIcon = noteContent.createEl("span", { cls: "semble-detail-note-icon" });
-				setIcon(noteIcon, "message-square");
-				noteContent.createEl("p", { text: note.text, cls: "semble-detail-note-text" });
-
-				// Note: delete functionality would need to be handled by the modal
-			}
-		}
 	}
 
 	getAttachedNotes() {
@@ -176,13 +168,13 @@ export class SembleSource implements DataSource {
 		const cardsResp = await getCards(this.client, this.repo);
 		if (!cardsResp.ok) return [];
 
-		const allSembleCards = cardsResp.data.records;
+		const allSembleCards = cardsResp.data.records as CardRecord[];
 
 		// Build notes map
 		const notesMap = new Map<string, Array<{ uri: string; text: string }>>();
-		for (const record of allSembleCards as any[]) {
+		for (const record of allSembleCards) {
 			if (record.value.type === "NOTE") {
-				const parentUri = record.value.originalCard?.uri || record.value.parentCard?.uri;
+				const parentUri = record.value.parentCard?.uri;
 				if (parentUri) {
 					const noteContent = record.value.content as NoteContent;
 					const existing = notesMap.get(parentUri) || [];
@@ -193,9 +185,9 @@ export class SembleSource implements DataSource {
 		}
 
 		// Filter out NOTE cards that are attached to other cards
-		let sembleCards = allSembleCards.filter((record: any) => {
+		let sembleCards = allSembleCards.filter((record: CardRecord) => {
 			if (record.value.type === "NOTE") {
-				const hasParent = record.value.originalCard?.uri || record.value.parentCard?.uri;
+				const hasParent = record.value.parentCard?.uri;
 				return !hasParent;
 			}
 			return true;
@@ -206,16 +198,17 @@ export class SembleSource implements DataSource {
 		if (collectionFilter && collectionFilter.value) {
 			const linksResp = await getCollectionLinks(this.client, this.repo);
 			if (linksResp.ok) {
-				const links = linksResp.data.records.filter((link: any) =>
+				const links = linksResp.data.records as CollectionLinkRecord[];
+				const filteredLinks = links.filter((link: CollectionLinkRecord) =>
 					link.value.collection.uri === collectionFilter.value
 				);
-				const cardUris = new Set(links.map((link: any) => link.value.card.uri));
-				sembleCards = sembleCards.filter((card: any) => cardUris.has(card.uri));
+				const cardUris = new Set(filteredLinks.map((link: CollectionLinkRecord) => link.value.card.uri));
+				sembleCards = sembleCards.filter((card: CardRecord) => cardUris.has(card.uri));
 			}
 		}
 
 		// Create SembleItem objects
-		return sembleCards.map((record: any) =>
+		return sembleCards.map((record: CardRecord) =>
 			new SembleItem(record, notesMap.get(record.uri) || [], plugin)
 		);
 	}
@@ -224,24 +217,23 @@ export class SembleSource implements DataSource {
 		const collectionsResp = await getCollections(this.client, this.repo);
 		if (!collectionsResp.ok) return [];
 
-		const collections = collectionsResp.data.records;
-		return collections.map((c: any) => ({
+		const collections = collectionsResp.data.records as CollectionRecord[];
+		return collections.map((c: CollectionRecord) => ({
 			type: "sembleCollection",
 			value: c.uri,
 			label: c.value.name,
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, any>, onChange: () => void, plugin: ATmarkPlugin): void {
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void {
 		const section = container.createEl("div", { cls: "atmark-filter-section" });
 
 		const titleRow = section.createEl("div", { cls: "atmark-filter-title-row" });
-		titleRow.createEl("h3", { text: "Semble Collections", cls: "atmark-filter-title" });
+		titleRow.createEl("h3", { text: "Semble collections", cls: "atmark-filter-title" });
 
 		const createBtn = titleRow.createEl("button", { cls: "atmark-filter-create-btn" });
 		setIcon(createBtn, "plus");
 		createBtn.addEventListener("click", () => {
-			const { CreateCollectionModal } = require("../components/createCollectionModal");
 			new CreateCollectionModal(plugin, onChange).open();
 		});
 
@@ -262,8 +254,8 @@ export class SembleSource implements DataSource {
 		void this.getAvailableFilters().then(collections => {
 			for (const collection of collections) {
 				const chip = chips.createEl("button", {
-					text: (collection as any).label,
-					cls: `atmark-chip ${activeFilters.get("sembleCollection") === collection.value ? "atmark-chip-active" : ""}`,
+					text: collection.label,
+					cls: `atmark-chip ${activeFilters.get("sembleCollection")?.value === collection.value ? "atmark-chip-active" : ""}`,
 				});
 				chip.addEventListener("click", () => {
 					activeFilters.set("sembleCollection", collection);

@@ -1,14 +1,18 @@
 import { Modal, Notice } from "obsidian";
+import type { Record } from "@atcute/atproto/types/repo/listRecords";
+import type { Main as Bookmark } from "../lexicons/types/community/lexicon/bookmarks/bookmark";
 import type ATmarkPlugin from "../main";
 import { putRecord, deleteRecord } from "../lib";
 
+type BookmarkRecord = Record & { value: Bookmark };
+
 export class EditBookmarkModal extends Modal {
 	plugin: ATmarkPlugin;
-	record: any;
+	record: BookmarkRecord;
 	onSuccess?: () => void;
 	tagInputs: HTMLInputElement[] = [];
 
-	constructor(plugin: ATmarkPlugin, record: any, onSuccess?: () => void) {
+	constructor(plugin: ATmarkPlugin, record: BookmarkRecord, onSuccess?: () => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.record = record;
@@ -18,7 +22,7 @@ export class EditBookmarkModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("semble-collection-modal");
+		contentEl.addClass("atmark-modal");
 
 		contentEl.createEl("h2", { text: "Edit bookmark tags" });
 
@@ -29,13 +33,13 @@ export class EditBookmarkModal extends Modal {
 
 		const existingTags = this.record.value.tags || [];
 
-		const form = contentEl.createEl("div", { cls: "semble-form" });
+		const form = contentEl.createEl("div", { cls: "atmark-form" });
 
 		// Tags section
-		const tagsGroup = form.createEl("div", { cls: "semble-form-group" });
+		const tagsGroup = form.createEl("div", { cls: "atmark-form-group" });
 		tagsGroup.createEl("label", { text: "Tags" });
 
-		const tagsContainer = tagsGroup.createEl("div", { cls: "semble-tags-container" });
+		const tagsContainer = tagsGroup.createEl("div", { cls: "atmark-tags-container" });
 
 		// Render existing tags
 		for (const tag of existingTags) {
@@ -47,8 +51,8 @@ export class EditBookmarkModal extends Modal {
 
 		// Add tag button
 		const addTagBtn = tagsGroup.createEl("button", {
-			text: "+ Add tag",
-			cls: "semble-btn semble-btn-secondary"
+			text: "Add tag",
+			cls: "atmark-btn atmark-btn-secondary"
 		});
 		addTagBtn.addEventListener("click", (e) => {
 			e.preventDefault();
@@ -56,35 +60,35 @@ export class EditBookmarkModal extends Modal {
 		});
 
 		// Action buttons
-		const actions = contentEl.createEl("div", { cls: "semble-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
 
 		const deleteBtn = actions.createEl("button", {
 			text: "Delete",
-			cls: "semble-btn semble-btn-danger"
+			cls: "atmark-btn atmark-btn-danger"
 		});
 		deleteBtn.addEventListener("click", () => { this.confirmDelete(contentEl); });
 
-		actions.createEl("div", { cls: "semble-spacer" });
+		actions.createEl("div", { cls: "atmark-spacer" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "semble-btn semble-btn-secondary"
+			cls: "atmark-btn atmark-btn-secondary"
 		});
 		cancelBtn.addEventListener("click", () => { this.close(); });
 
 		const saveBtn = actions.createEl("button", {
 			text: "Save",
-			cls: "semble-btn semble-btn-primary"
+			cls: "atmark-btn atmark-btn-primary"
 		});
 		saveBtn.addEventListener("click", () => { void this.saveChanges(); });
 	}
 
 	private addTagInput(container: HTMLElement, value: string) {
-		const tagRow = container.createEl("div", { cls: "semble-tag-row" });
+		const tagRow = container.createEl("div", { cls: "atmark-tag-row" });
 
 		const input = tagRow.createEl("input", {
 			type: "text",
-			cls: "semble-input",
+			cls: "atmark-input",
 			value,
 			attr: { placeholder: "Enter tag..." }
 		});
@@ -92,7 +96,7 @@ export class EditBookmarkModal extends Modal {
 
 		const removeBtn = tagRow.createEl("button", {
 			text: "×",
-			cls: "semble-btn semble-btn-secondary semble-tag-remove-btn"
+			cls: "atmark-btn atmark-btn-secondary atmark-tag-remove-btn"
 		});
 		removeBtn.addEventListener("click", (e) => {
 			e.preventDefault();
@@ -104,13 +108,13 @@ export class EditBookmarkModal extends Modal {
 	private confirmDelete(contentEl: HTMLElement) {
 		contentEl.empty();
 		contentEl.createEl("h2", { text: "Delete bookmark" });
-		contentEl.createEl("p", { text: "Delete this bookmark?", cls: "semble-warning-text" });
+		contentEl.createEl("p", { text: "Delete this bookmark?", cls: "atmark-warning-text" });
 
-		const actions = contentEl.createEl("div", { cls: "semble-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "semble-btn semble-btn-secondary"
+			cls: "atmark-btn atmark-btn-secondary"
 		});
 		cancelBtn.addEventListener("click", () => {
 			void this.onOpen();
@@ -118,7 +122,7 @@ export class EditBookmarkModal extends Modal {
 
 		const confirmBtn = actions.createEl("button", {
 			text: "Delete",
-			cls: "semble-btn semble-btn-danger"
+			cls: "atmark-btn atmark-btn-danger"
 		});
 		confirmBtn.addEventListener("click", () => { void this.deleteBookmark(); });
 	}
@@ -134,7 +138,7 @@ export class EditBookmarkModal extends Modal {
 			const rkey = this.record.uri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "semble-error" });
+				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "atmark-error" });
 				return;
 			}
 
@@ -151,7 +155,7 @@ export class EditBookmarkModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "semble-error" });
+			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "atmark-error" });
 		}
 	}
 
@@ -173,12 +177,12 @@ export class EditBookmarkModal extends Modal {
 			const rkey = this.record.uri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "semble-error" });
+				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "atmark-error" });
 				return;
 			}
 
 			// Update the record with new tags
-			const updatedRecord = {
+			const updatedRecord: Bookmark = {
 				...this.record.value,
 				tags,
 			};
@@ -197,7 +201,7 @@ export class EditBookmarkModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "semble-error" });
+			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "atmark-error" });
 		}
 	}
 

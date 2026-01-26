@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { renderProfileIcon } from "../components/profileIcon";
@@ -38,6 +42,7 @@ export class ATmarkView extends ItemView {
 	}
 
 	getDisplayText() {
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		return "ATmark";
 	}
 

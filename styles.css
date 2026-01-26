@@ -260,7 +260,370 @@
 	color: var(--text-error);
 }
 
-/* Legacy Semble classes for backwards compatibility */
+
+/* Item Content (shared between sources) */
+.atmark-item-content {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.atmark-item-title {
+	font-weight: var(--font-semibold);
+	font-size: 1.1em;
+	color: var(--text-normal);
+}
+
+.atmark-item-image {
+	width: 100%;
+	max-height: 120px;
+	object-fit: cover;
+	border-radius: var(--radius-s);
+	margin: 4px 0;
+}
+
+.atmark-item-desc {
+	color: var(--text-muted);
+	font-size: var(--font-small);
+	margin: 0;
+	flex-grow: 1;
+}
+
+.atmark-item-site {
+	font-size: var(--font-smallest);
+	color: var(--text-faint);
+}
+
+.atmark-item-url {
+	font-size: var(--font-small);
+	color: var(--text-accent);
+	text-decoration: none;
+	word-break: break-all;
+}
+
+.atmark-item-url:hover {
+	text-decoration: underline;
+}
+
+.atmark-item-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.atmark-tag {
+	font-size: var(--font-smallest);
+	padding: 2px 8px;
+	border-radius: var(--radius-s);
+	background: var(--background-modifier-border);
+	color: var(--text-muted);
+	border: 1px solid var(--background-modifier-border-hover);
+}
+
+.atmark-item-tags-section {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* Detail Modal (shared between sources) */
+.atmark-detail-body {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.atmark-detail-title {
+	margin: 0;
+	font-size: var(--h2-size);
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+	line-height: 1.3;
+}
+
+.atmark-detail-image {
+	max-width: 100%;
+	max-height: 200px;
+	object-fit: contain;
+	border-radius: var(--radius-m);
+}
+
+.atmark-detail-description {
+	margin: 0;
+	color: var(--text-normal);
+	line-height: var(--line-height-normal);
+}
+
+.atmark-detail-meta {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+	padding: 16px;
+	background: var(--background-secondary);
+	border-radius: var(--radius-m);
+}
+
+.atmark-detail-meta-item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.atmark-detail-meta-label {
+	font-size: var(--font-smallest);
+	color: var(--text-faint);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.atmark-detail-meta-value {
+	font-size: var(--font-small);
+	color: var(--text-normal);
+}
+
+.atmark-detail-link-wrapper {
+	padding-top: 8px;
+}
+
+.atmark-detail-link {
+	font-size: var(--font-small);
+	color: var(--text-accent);
+	text-decoration: none;
+	word-break: break-all;
+}
+
+.atmark-detail-link:hover {
+	text-decoration: underline;
+}
+
+.atmark-detail-section-title {
+	margin: 0 0 12px 0;
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Modals and Forms (shared) */
+.atmark-modal {
+	padding: 16px;
+}
+
+.atmark-modal h2 {
+	margin: 0 0 16px 0;
+	font-size: var(--h2-size);
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+
+.atmark-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.atmark-form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.atmark-form-group label {
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	color: var(--text-normal);
+}
+
+.atmark-input,
+.atmark-textarea {
+	padding: 8px 12px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-normal);
+	font-size: var(--font-ui-medium);
+	font-family: inherit;
+	transition: border-color 0.15s ease;
+}
+
+.atmark-input:focus,
+.atmark-textarea:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+	box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+.atmark-input::placeholder,
+.atmark-textarea::placeholder {
+	color: var(--text-faint);
+}
+
+.atmark-textarea {
+	resize: vertical;
+	min-height: 60px;
+}
+
+.atmark-modal-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-top: 16px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmark-spacer {
+	flex: 1;
+}
+
+.atmark-btn {
+	padding: 8px 16px;
+	border-radius: var(--radius-s);
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.atmark-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.atmark-btn-secondary {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+}
+
+.atmark-btn-secondary:hover:not(:disabled) {
+	background: var(--background-modifier-hover);
+}
+
+.atmark-btn-primary {
+	background: var(--interactive-accent);
+	border: 1px solid var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.atmark-btn-primary:hover:not(:disabled) {
+	background: var(--interactive-accent-hover);
+}
+
+.atmark-btn-danger {
+	background: color-mix(in srgb, var(--color-red) 15%, transparent);
+	border: none;
+	color: var(--color-red);
+}
+
+.atmark-btn-danger:hover:not(:disabled) {
+	background: color-mix(in srgb, var(--color-red) 25%, transparent);
+}
+
+.atmark-warning-text {
+	color: var(--text-muted);
+	margin-bottom: 16px;
+}
+
+.atmark-tags-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.atmark-tag-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.atmark-tag-row .atmark-input {
+	flex: 1;
+}
+
+.atmark-tag-remove-btn {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	font-size: 20px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+/* Semble-specific styles (for NOTE cards and attached notes) */
+.semble-card-note {
+	margin: 0;
+	padding: 8px 12px;
+	background: var(--background-primary);
+	border-left: 3px solid var(--color-blue);
+	border-radius: var(--radius-s);
+	font-size: var(--font-small);
+	font-style: italic;
+	color: var(--text-muted);
+	white-space: pre-wrap;
+	line-height: var(--line-height-normal);
+}
+
+.semble-card-text {
+	margin: 0;
+	white-space: pre-wrap;
+	line-height: var(--line-height-normal);
+	color: var(--text-normal);
+}
+
+.semble-detail-text {
+	margin: 0;
+	white-space: pre-wrap;
+	line-height: var(--line-height-normal);
+	color: var(--text-normal);
+	font-size: 1.1em;
+}
+
+.semble-detail-notes-section {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.semble-detail-note {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 16px;
+	background: var(--background-secondary);
+	border-left: 3px solid var(--color-blue);
+	border-radius: var(--radius-s);
+	margin-bottom: 8px;
+}
+
+.semble-detail-note-content {
+	display: flex;
+	gap: 12px;
+	flex: 1;
+	min-width: 0;
+}
+
+.semble-detail-note-icon {
+	flex-shrink: 0;
+	color: var(--color-blue);
+}
+
+.semble-detail-note-icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+.semble-detail-note-text {
+	margin: 0;
+	color: var(--text-normal);
+	line-height: var(--line-height-normal);
+	white-space: pre-wrap;
+}
+
+/* Legacy Semble classes (backwards compatibility - will be removed in future) */
 .semble-card-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -292,12 +655,6 @@
 	gap: 8px;
 }
 
-.semble-card-title {
-	font-weight: var(--font-semibold);
-	font-size: 1.1em;
-	color: var(--text-normal);
-}
-
 .semble-badge {
 	font-size: var(--font-smallest);
 	padding: 2px 8px;
@@ -317,48 +674,6 @@
 	color: var(--text-on-accent);
 }
 
-/* Access type icons */
-.semble-access-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-}
-
-.semble-access-icon svg {
-	width: 12px;
-	height: 12px;
-}
-
-.semble-access-open {
-	color: var(--color-green);
-}
-
-.semble-access-closed {
-	color: var(--color-orange);
-}
-
-.semble-card-desc {
-	color: var(--text-muted);
-	font-size: var(--font-small);
-	margin: 0;
-	flex-grow: 1;
-}
-
-.semble-card-footer {
-	display: flex;
-	justify-content: space-between;
-	font-size: var(--font-smallest);
-	color: var(--text-faint);
-	margin-top: auto;
-	padding-top: 8px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-error {
-	color: var(--text-error);
-}
-
 /* Card type badges */
 .semble-badge-note {
 	background: var(--color-blue);
@@ -367,11 +682,6 @@
 
 .semble-badge-url {
 	background: var(--color-purple);
-	color: var(--text-on-accent);
-}
-
-.semble-badge-bookmark {
-	background: var(--color-cyan);
 	color: var(--text-on-accent);
 }
 
@@ -385,34 +695,11 @@
 	color: var(--text-on-accent);
 }
 
-/* Tags */
-.semble-card-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	margin-bottom: 8px;
-}
-
-.semble-tag {
-	font-size: var(--font-smallest);
-	padding: 2px 8px;
-	border-radius: var(--radius-s);
-	background: var(--background-modifier-border);
-	color: var(--text-muted);
-	border: 1px solid var(--background-modifier-border-hover);
-}
-
-.semble-detail-tags-section {
-	margin-top: 20px;
-	padding-top: 20px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-/* Page header */
+/* Semble-specific page components */
 .semble-page-header {
 	margin-bottom: 16px;
 	padding-bottom: 16px;
-	border-bottom: 1px solid var(--background-modifier-border);
+	border-top: 1px solid var(--background-modifier-border);
 }
 
 .semble-nav-row {
@@ -437,51 +724,6 @@
 	color: var(--text-normal);
 }
 
-.semble-card-text {
-	margin: 0;
-	white-space: pre-wrap;
-	line-height: var(--line-height-normal);
-	color: var(--text-normal);
-}
-
-.semble-card-note {
-	margin: 0;
-	padding: 8px 12px;
-	background: var(--background-primary);
-	border-left: 3px solid var(--color-blue);
-	border-radius: var(--radius-s);
-	font-size: var(--font-small);
-	font-style: italic;
-	color: var(--text-muted);
-	white-space: pre-wrap;
-	line-height: var(--line-height-normal);
-}
-
-.semble-card-url {
-	font-size: var(--font-small);
-	color: var(--text-accent);
-	text-decoration: none;
-	word-break: break-all;
-}
-
-.semble-card-url:hover {
-	text-decoration: underline;
-}
-
-.semble-card-site {
-	font-size: var(--font-smallest);
-	color: var(--text-faint);
-}
-
-.semble-card-image {
-	width: 100%;
-	max-height: 120px;
-	object-fit: cover;
-	border-radius: var(--radius-s);
-	margin: 4px 0;
-}
-
-/* Back button */
 .semble-back-btn {
 	display: flex;
 	align-items: center;
@@ -501,71 +743,7 @@
 	color: var(--text-normal);
 }
 
-/* Source filter toggles */
-.semble-source-filters {
-	display: flex;
-	align-items: center;
-	gap: 16px;
-	padding: 12px 0;
-	margin-bottom: 12px;
-}
-
-.semble-source-filter-label {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	cursor: pointer;
-	user-select: none;
-}
-
-.semble-source-filter-checkbox {
-	width: 16px;
-	height: 16px;
-	cursor: pointer;
-	accent-color: var(--interactive-accent);
-}
-
-.semble-source-filter-text {
-	font-size: var(--font-small);
-	font-weight: var(--font-medium);
-	color: var(--text-normal);
-}
-
-/* Filter chips */
-.semble-filter-chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-bottom: 16px;
-}
-
-.semble-chip {
-	padding: 6px 14px;
-	border-radius: var(--radius-full);
-	border: 1px solid var(--background-modifier-border);
-	background: var(--background-secondary);
-	color: var(--text-muted);
-	font-size: var(--font-small);
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.semble-chip:hover {
-	background: var(--background-modifier-hover);
-	color: var(--text-normal);
-}
-
-.semble-chip-active {
-	background: var(--interactive-accent);
-	color: var(--text-on-accent);
-	border-color: var(--interactive-accent);
-}
-
-.semble-chip-active:hover {
-	background: var(--interactive-accent-hover);
-}
-
-/* Profile Icon */
+/* Semble-specific Profile Icon */
 .semble-profile-icon {
 	display: flex;
 	align-items: center;
@@ -638,40 +816,7 @@
 	line-height: 1.2;
 }
 
-/* Card Menu Button */
-.semble-card-menu-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	height: 24px;
-	padding: 0;
-	margin-left: auto;
-	background: transparent;
-	border: none;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	color: var(--text-faint);
-	opacity: 0.6;
-	transition: all 0.15s ease;
-}
-
-.semble-card:hover .semble-card-menu-btn {
-	opacity: 1;
-}
-
-.semble-card-menu-btn:hover {
-	background: var(--background-modifier-hover);
-	color: var(--text-normal);
-	opacity: 1;
-}
-
-.semble-card-menu-btn svg {
-	width: 14px;
-	height: 14px;
-}
-
-/* Collection Modal */
+/* Semble-specific Collection UI */
 .semble-collection-modal {
 	padding: 16px;
 }
@@ -734,70 +879,7 @@
 	color: var(--text-muted);
 }
 
-/* Modal Actions */
-.semble-modal-actions {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding-top: 16px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-spacer {
-	flex: 1;
-}
-
-.semble-btn {
-	padding: 8px 16px;
-	border-radius: var(--radius-s);
-	font-size: var(--font-small);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.semble-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.semble-btn-secondary {
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	color: var(--text-normal);
-}
-
-.semble-btn-secondary:hover:not(:disabled) {
-	background: var(--background-modifier-hover);
-}
-
-.semble-btn-primary {
-	background: var(--interactive-accent);
-	border: 1px solid var(--interactive-accent);
-	color: var(--text-on-accent);
-}
-
-.semble-btn-primary:hover:not(:disabled) {
-	background: var(--interactive-accent-hover);
-}
-
-.semble-btn-danger {
-	background: color-mix(in srgb, var(--color-red) 15%, transparent);
-	border: none;
-	color: var(--color-red);
-}
-
-.semble-btn-danger:hover:not(:disabled) {
-	background: color-mix(in srgb, var(--color-red) 25%, transparent);
-}
-
-/* Warning text */
-.semble-warning-text {
-	color: var(--text-muted);
-	margin-bottom: 16px;
-}
-
-/* Toolbar */
+/* Semble-specific Toolbar */
 .semble-toolbar {
 	display: flex;
 	align-items: center;
@@ -854,7 +936,144 @@
 	height: 14px;
 }
 
-/* Form Elements */
+/* Semble-specific Card Detail Modal */
+.semble-detail-modal {
+	padding: 20px;
+	max-width: 600px;
+}
+
+.semble-detail-header {
+	margin-bottom: 16px;
+}
+
+.semble-detail-footer {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.semble-detail-date {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+}
+
+.semble-detail-section-title {
+	margin: 0 0 12px 0;
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Semble-specific Add Note Form */
+.semble-detail-add-note {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.semble-add-note-form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.semble-note-input {
+	min-height: 80px;
+	resize: vertical;
+}
+
+.semble-note-delete-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	flex-shrink: 0;
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-faint);
+	opacity: 0.6;
+	transition: all 0.15s ease;
+}
+
+.semble-note-delete-btn:hover {
+	background: color-mix(in srgb, var(--color-red) 15%, transparent);
+	color: var(--color-red);
+	opacity: 1;
+}
+
+.semble-note-delete-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Semble-specific legacy classes that need to be migrated to atmark-* */
+.semble-modal-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-top: 16px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.semble-spacer {
+	flex: 1;
+}
+
+.semble-btn {
+	padding: 8px 16px;
+	border-radius: var(--radius-s);
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.semble-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.semble-btn-secondary {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+}
+
+.semble-btn-secondary:hover:not(:disabled) {
+	background: var(--background-modifier-hover);
+}
+
+.semble-btn-primary {
+	background: var(--interactive-accent);
+	border: 1px solid var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.semble-btn-primary:hover:not(:disabled) {
+	background: var(--interactive-accent-hover);
+}
+
+.semble-btn-danger {
+	background: color-mix(in srgb, var(--color-red) 15%, transparent);
+	border: none;
+	color: var(--color-red);
+}
+
+.semble-btn-danger:hover:not(:disabled) {
+	background: color-mix(in srgb, var(--color-red) 25%, transparent);
+}
+
+.semble-warning-text {
+	color: var(--text-muted);
+	margin-bottom: 16px;
+}
+
 .semble-form {
 	display: flex;
 	flex-direction: column;
@@ -902,228 +1121,6 @@
 	min-height: 60px;
 }
 
-/* Card Detail Modal */
-.semble-detail-modal {
-	padding: 20px;
-	max-width: 600px;
-}
-
-.semble-detail-header {
-	margin-bottom: 16px;
-}
-
-.semble-detail-body {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-}
-
-.semble-detail-title {
-	margin: 0;
-	font-size: var(--h2-size);
-	font-weight: var(--font-semibold);
-	color: var(--text-normal);
-	line-height: 1.3;
-}
-
-.semble-detail-image {
-	max-width: 100%;
-	max-height: 200px;
-	object-fit: contain;
-	border-radius: var(--radius-m);
-}
-
-.semble-detail-description {
-	margin: 0;
-	color: var(--text-normal);
-	line-height: var(--line-height-normal);
-}
-
-.semble-detail-text {
-	margin: 0;
-	white-space: pre-wrap;
-	line-height: var(--line-height-normal);
-	color: var(--text-normal);
-	font-size: 1.1em;
-}
-
-.semble-detail-meta {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 12px;
-	padding: 16px;
-	background: var(--background-secondary);
-	border-radius: var(--radius-m);
-}
-
-.semble-detail-meta-item {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-}
-
-.semble-detail-meta-label {
-	font-size: var(--font-smallest);
-	color: var(--text-faint);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.semble-detail-meta-value {
-	font-size: var(--font-small);
-	color: var(--text-normal);
-}
-
-.semble-detail-link-wrapper {
-	padding-top: 8px;
-}
-
-.semble-detail-link {
-	font-size: var(--font-small);
-	color: var(--text-accent);
-	text-decoration: none;
-	word-break: break-all;
-}
-
-.semble-detail-link:hover {
-	text-decoration: underline;
-}
-
-.semble-detail-notes-section {
-	margin-top: 20px;
-	padding-top: 20px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-detail-section-title {
-	margin: 0 0 12px 0;
-	font-size: var(--font-small);
-	font-weight: var(--font-semibold);
-	color: var(--text-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.semble-detail-note {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 12px 16px;
-	background: var(--background-secondary);
-	border-left: 3px solid var(--color-blue);
-	border-radius: var(--radius-s);
-	margin-bottom: 8px;
-}
-
-.semble-detail-note-content {
-	display: flex;
-	gap: 12px;
-	flex: 1;
-	min-width: 0;
-}
-
-.semble-detail-note-icon {
-	flex-shrink: 0;
-	color: var(--color-blue);
-}
-
-.semble-detail-note-icon svg {
-	width: 16px;
-	height: 16px;
-}
-
-.semble-detail-note-text {
-	margin: 0;
-	color: var(--text-normal);
-	line-height: var(--line-height-normal);
-	white-space: pre-wrap;
-}
-
-.semble-note-delete-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	height: 28px;
-	padding: 0;
-	flex-shrink: 0;
-	background: transparent;
-	border: none;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	color: var(--text-faint);
-	opacity: 0.6;
-	transition: all 0.15s ease;
-}
-
-.semble-note-delete-btn:hover {
-	background: color-mix(in srgb, var(--color-red) 15%, transparent);
-	color: var(--color-red);
-	opacity: 1;
-}
-
-.semble-note-delete-btn svg {
-	width: 14px;
-	height: 14px;
-}
-
-.semble-detail-footer {
-	margin-top: 20px;
-	padding-top: 16px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-detail-date {
-	font-size: var(--font-small);
-	color: var(--text-faint);
-}
-
-/* Add Note Form */
-.semble-detail-add-note {
-	margin-top: 20px;
-	padding-top: 20px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-add-note-form {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-}
-
-.semble-note-input {
-	min-height: 80px;
-	resize: vertical;
-}
-
-.semble-add-note-form .semble-btn {
-	align-self: flex-end;
-}
-
-/* Tag editing */
-.semble-tags-container {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	margin-bottom: 8px;
-}
-
-.semble-tag-row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.semble-tag-row .semble-input {
-	flex: 1;
-}
-
-.semble-tag-remove-btn {
-	width: 32px;
-	height: 32px;
-	padding: 0;
-	font-size: 20px;
-	line-height: 1;
-	flex-shrink: 0;
+.semble-error {
+	color: var(--text-error);
 }

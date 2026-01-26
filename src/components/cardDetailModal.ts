@@ -1,4 +1,4 @@
-import { Modal, Notice } from "obsidian";
+import { Modal, Notice, setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { createNoteCard, deleteRecord } from "../lib";
 import type { ATmarkItem } from "../sources/types";
@@ -32,6 +32,11 @@ export class CardDetailModal extends Modal {
 		// Render item detail content
 		this.item.renderDetail(contentEl);
 
+		// Render notes with delete buttons (semble-specific)
+		if (this.item.canAddNotes() && "getAttachedNotes" in this.item) {
+			this.renderNotesSection(contentEl);
+		}
+
 		// Add note form (only for items that support it)
 		if (this.item.canAddNotes()) {
 			this.renderAddNoteForm(contentEl);
@@ -45,18 +50,53 @@ export class CardDetailModal extends Modal {
 		});
 	}
 
+	private renderNotesSection(contentEl: HTMLElement) {
+		// Type guard to check if item has getAttachedNotes method
+		interface ItemWithNotes {
+			getAttachedNotes(): Array<{ uri: string; text: string }>;
+		}
+
+		const hasNotes = (item: ATmarkItem): item is ATmarkItem & ItemWithNotes => {
+			return "getAttachedNotes" in item && typeof (item as ItemWithNotes).getAttachedNotes === "function";
+		};
+
+		if (!hasNotes(this.item)) return;
+
+		const notes = this.item.getAttachedNotes();
+		if (notes.length === 0) return;
+
+		const notesSection = contentEl.createEl("div", { cls: "semble-detail-notes-section" });
+		notesSection.createEl("h3", { text: "Notes", cls: "atmark-detail-section-title" });
+
+		for (const note of notes) {
+			const noteEl = notesSection.createEl("div", { cls: "semble-detail-note" });
+
+			const noteContent = noteEl.createEl("div", { cls: "semble-detail-note-content" });
+			const noteIcon = noteContent.createEl("span", { cls: "semble-detail-note-icon" });
+			setIcon(noteIcon, "message-square");
+			noteContent.createEl("p", { text: note.text, cls: "semble-detail-note-text" });
+
+			// Delete button
+			const deleteBtn = noteEl.createEl("button", { cls: "semble-note-delete-btn" });
+			setIcon(deleteBtn, "trash-2");
+			deleteBtn.addEventListener("click", () => {
+				void this.handleDeleteNote(note.uri);
+			});
+		}
+	}
+
 	private renderAddNoteForm(contentEl: HTMLElement) {
 		const formSection = contentEl.createEl("div", { cls: "semble-detail-add-note" });
-		formSection.createEl("h3", { text: "Add a note", cls: "semble-detail-section-title" });
+		formSection.createEl("h3", { text: "Add a note", cls: "atmark-detail-section-title" });
 
 		const form = formSection.createEl("div", { cls: "semble-add-note-form" });
 
 		this.noteInput = form.createEl("textarea", {
-			cls: "semble-textarea semble-note-input",
+			cls: "atmark-textarea semble-note-input",
 			attr: { placeholder: "Write a note about this item..." },
 		});
 
-		const addBtn = form.createEl("button", { text: "Add note", cls: "semble-btn semble-btn-primary" });
+		const addBtn = form.createEl("button", { text: "Add note", cls: "atmark-btn atmark-btn-primary" });
 		addBtn.addEventListener("click", () => { void this.handleAddNote(); });
 	}
 

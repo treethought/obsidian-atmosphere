@@ -15,7 +15,7 @@ export class CreateTagModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("semble-collection-modal");
+		contentEl.addClass("atmark-modal");
 
 		contentEl.createEl("h2", { text: "New tag" });
 
@@ -24,30 +24,30 @@ export class CreateTagModal extends Modal {
 			return;
 		}
 
-		const form = contentEl.createEl("form", { cls: "semble-form" });
+		const form = contentEl.createEl("form", { cls: "atmark-form" });
 
 		// Tag value field
-		const tagGroup = form.createEl("div", { cls: "semble-form-group" });
+		const tagGroup = form.createEl("div", { cls: "atmark-form-group" });
 		tagGroup.createEl("label", { text: "Tag", attr: { for: "tag-value" } });
 		const tagInput = tagGroup.createEl("input", {
 			type: "text",
-			cls: "semble-input",
+			cls: "atmark-input",
 			attr: { id: "tag-value", placeholder: "Tag name", required: "true" },
 		});
 
 		// Action buttons
-		const actions = form.createEl("div", { cls: "semble-modal-actions" });
+		const actions = form.createEl("div", { cls: "atmark-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "semble-btn semble-btn-secondary",
+			cls: "atmark-btn atmark-btn-secondary",
 			type: "button",
 		});
 		cancelBtn.addEventListener("click", () => this.close());
 
 		const createBtn = actions.createEl("button", {
 			text: "Create",
-			cls: "semble-btn semble-btn-primary",
+			cls: "atmark-btn atmark-btn-primary",
 			type: "submit",
 		});
 

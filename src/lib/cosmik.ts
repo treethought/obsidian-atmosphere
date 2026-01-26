@@ -38,7 +38,7 @@ export async function getSembleCards(client: Client, repo: string) {
 	});
 }
 
-export async function createSembleNote(client: Client, repo: string, text: string, originalCard?: { uri: string; cid: string }) {
+export async function createSembleNote(client: Client, repo: string, text: string, parentCard?: { uri: string; cid: string }) {
 	return await client.post("com.atproto.repo.createRecord", {
 		input: {
 			repo: repo as ActorIdentifier,
@@ -50,7 +50,8 @@ export async function createSembleNote(client: Client, repo: string, text: strin
 					$type: "network.cosmik.card#noteContent",
 					text,
 				},
-				originalCard: originalCard ? { uri: originalCard.uri, cid: originalCard.cid } : undefined,
+				// Only set parentCard as per Semble documentation
+				parentCard: parentCard ? { uri: parentCard.uri, cid: parentCard.cid } : undefined,
 				createdAt: new Date().toISOString(),
 			},
 		},
