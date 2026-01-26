@@ -190,6 +190,18 @@ export class ATmarkView extends ItemView {
 			text: new Date(item.getCreatedAt()).toLocaleDateString(),
 			cls: "atmark-date",
 		});
+
+		// Show note indicator for items with attached notes (semble cards)
+		const notes = item.getAttachedNotes?.();
+		if (notes && notes.length > 0) {
+			const noteIndicator = footer.createEl("div", { cls: "atmark-note-indicator" });
+			const icon = noteIndicator.createEl("span", { cls: "atmark-note-icon" });
+			setIcon(icon, "message-square");
+			noteIndicator.createEl("span", {
+				text: `${notes.length} note${notes.length > 1 ? 's' : ''}`,
+				cls: "atmark-note-count"
+			});
+		}
 	}
 
 	async onClose() { }

@@ -56,13 +56,6 @@ class SembleItem implements ATmarkItem {
 	render(container: HTMLElement): void {
 		const el = container.createEl("div", { cls: "atmark-item-content" });
 
-		// Display attached notes (semble-specific)
-		if (this.attachedNotes.length > 0) {
-			for (const note of this.attachedNotes) {
-				el.createEl("p", { text: note.text, cls: "semble-card-note" });
-			}
-		}
-
 		const card = this.record.value;
 
 		if (card.type === "NOTE") {

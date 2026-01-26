@@ -10,6 +10,7 @@ export interface ATmarkItem {
 	getCid(): string;
 	getCreatedAt(): string;
 	getSource(): "semble" | "bookmark";
+	getAttachedNotes?(): Array<{ uri: string; text: string }>;
 }
 
 export interface SourceFilter {

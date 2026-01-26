@@ -172,7 +172,6 @@
 	padding: 16px;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
 	transition: box-shadow 0.15s ease, border-color 0.15s ease;
 	cursor: pointer;
 }
@@ -222,23 +221,25 @@
 }
 
 .atmark-badge {
-	font-size: var(--font-smallest);
-	padding: 2px 8px;
-	border-radius: var(--radius-s);
-	text-transform: uppercase;
-	font-weight: var(--font-medium);
+	font-size: 10px;
+	padding: 3px 8px;
+	border-radius: 12px;
+	text-transform: capitalize;
+	font-weight: var(--font-normal);
 	flex-shrink: 0;
-	opacity: 0.8;
+	letter-spacing: 0.3px;
 }
 
 .atmark-badge-semble {
-	background: var(--color-green);
-	color: var(--text-on-accent);
+	background: rgba(255, 87, 34, 0.15);
+	color: rgb(255, 120, 70);
+	border: 1px solid rgba(255, 87, 34, 0.3);
 }
 
 .atmark-badge-bookmark {
-	background: var(--color-cyan);
-	color: var(--text-on-accent);
+	background: rgba(3, 169, 244, 0.15);
+	color: rgb(3, 169, 244);
+	border: 1px solid rgba(3, 169, 244, 0.3);
 }
 
 .atmark-item-footer {
@@ -265,13 +266,19 @@
 .atmark-item-content {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
 }
 
 .atmark-item-title {
 	font-weight: var(--font-semibold);
-	font-size: 1.1em;
+	font-size: 1em;
 	color: var(--text-normal);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	line-height: 1.4;
+	margin-bottom: 4px;
 }
 
 .atmark-item-image {
@@ -279,26 +286,34 @@
 	max-height: 120px;
 	object-fit: cover;
 	border-radius: var(--radius-s);
-	margin: 4px 0;
 }
 
 .atmark-item-desc {
 	color: var(--text-muted);
 	font-size: var(--font-small);
 	margin: 0;
-	flex-grow: 1;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	line-height: 1.5;
 }
 
 .atmark-item-site {
 	font-size: var(--font-smallest);
 	color: var(--text-faint);
+	margin-bottom: 2px;
 }
 
 .atmark-item-url {
-	font-size: var(--font-small);
+	font-size: var(--font-smallest);
 	color: var(--text-accent);
 	text-decoration: none;
 	word-break: break-all;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .atmark-item-url:hover {
@@ -325,6 +340,30 @@
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* Note indicator for cards with attached notes */
+.atmark-note-indicator {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--font-smallest);
+	color: var(--text-muted);
+}
+
+.atmark-note-icon {
+	display: flex;
+	align-items: center;
+	color: var(--text-muted);
+}
+
+.atmark-note-icon svg {
+	width: 12px;
+	height: 12px;
+}
+
+.atmark-note-count {
+	font-size: var(--font-smallest);
 }
 
 /* Detail Modal (shared between sources) */
@@ -568,9 +607,12 @@
 
 .semble-card-text {
 	margin: 0;
-	white-space: pre-wrap;
-	line-height: var(--line-height-normal);
+	line-height: 1.5;
 	color: var(--text-normal);
+	display: -webkit-box;
+	-webkit-line-clamp: 5;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .semble-detail-text {

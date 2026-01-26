@@ -33,7 +33,7 @@ export class CardDetailModal extends Modal {
 		this.item.renderDetail(contentEl);
 
 		// Render notes with delete buttons (semble-specific)
-		if (this.item.canAddNotes() && "getAttachedNotes" in this.item) {
+		if (this.item.canAddNotes() && this.item.getAttachedNotes) {
 			this.renderNotesSection(contentEl);
 		}
 
@@ -51,19 +51,8 @@ export class CardDetailModal extends Modal {
 	}
 
 	private renderNotesSection(contentEl: HTMLElement) {
-		// Type guard to check if item has getAttachedNotes method
-		interface ItemWithNotes {
-			getAttachedNotes(): Array<{ uri: string; text: string }>;
-		}
-
-		const hasNotes = (item: ATmarkItem): item is ATmarkItem & ItemWithNotes => {
-			return "getAttachedNotes" in item && typeof (item as ItemWithNotes).getAttachedNotes === "function";
-		};
-
-		if (!hasNotes(this.item)) return;
-
-		const notes = this.item.getAttachedNotes();
-		if (notes.length === 0) return;
+		const notes = this.item.getAttachedNotes?.();
+		if (!notes || notes.length === 0) return;
 
 		const notesSection = contentEl.createEl("div", { cls: "semble-detail-notes-section" });
 		notesSection.createEl("h3", { text: "Notes", cls: "atmark-detail-section-title" });
