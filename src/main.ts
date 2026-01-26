@@ -19,6 +19,11 @@ export default class ATmarkPlugin extends Plugin {
 			return new ATmarkView(leaf, this);
 		});
 
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		this.addRibbonIcon("layers", "Open ATmark", () => {
+			void this.activateView(VIEW_TYPE_ATMARK);
+		});
+
 		this.addCommand({
 			id: "view",
 			name: "Open view",

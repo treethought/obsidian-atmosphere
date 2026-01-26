@@ -242,6 +242,12 @@
 	border: 1px solid rgba(3, 169, 244, 0.3);
 }
 
+.atmark-badge-margin {
+	background: rgba(156, 39, 176, 0.15);
+	color: rgb(186, 104, 200);
+	border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
 .atmark-item-footer {
 	display: flex;
 	justify-content: space-between;
@@ -334,6 +340,28 @@
 	background: var(--background-modifier-border);
 	color: var(--text-muted);
 	border: 1px solid var(--background-modifier-border-hover);
+}
+
+.atmark-item-collections {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.atmark-collection {
+	font-size: var(--font-smallest);
+	padding: 2px 8px;
+	border-radius: var(--radius-s);
+	background: rgba(156, 39, 176, 0.1);
+	color: rgb(186, 104, 200);
+	border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.atmark-item-collections-section {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--background-modifier-border);
 }
 
 .atmark-item-tags-section {

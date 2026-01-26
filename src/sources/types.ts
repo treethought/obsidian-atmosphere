@@ -9,7 +9,7 @@ export interface ATmarkItem {
 	getUri(): string;
 	getCid(): string;
 	getCreatedAt(): string;
-	getSource(): "semble" | "bookmark";
+	getSource(): "semble" | "bookmark" | "margin";
 	getAttachedNotes?(): Array<{ uri: string; text: string }>;
 }
 
@@ -20,7 +20,7 @@ export interface SourceFilter {
 }
 
 export interface DataSource {
-	readonly name: "semble" | "bookmark";
+	readonly name: "semble" | "bookmark" | "margin";
 	fetchItems(filters: SourceFilter[], plugin: ATmarkPlugin): Promise<ATmarkItem[]>;
 	getAvailableFilters(): Promise<SourceFilter[]>;
 	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void;
