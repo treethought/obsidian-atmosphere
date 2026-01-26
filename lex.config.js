@@ -14,6 +14,12 @@ export default defineLexiconConfig({
 				ref: 'main',
 				pattern: ['src/modules/atproto/infrastructure/lexicons/**/*.json'],
 			},
+			{
+				type: 'git',
+				remote: 'https://tangled.org/margin.at/margin.git',
+				ref: 'main',
+				pattern: ['lexicons/**/*.json'],
+			},
 		],
 	},
 });

@@ -9,10 +9,11 @@ import { CardDetailModal } from "../components/cardDetailModal";
 import type { ATmarkItem } from "../sources/types";
 import { SembleSource } from "../sources/semble";
 import { BookmarkSource } from "../sources/bookmark";
+import { MarginSource } from "../sources/margin";
 
 export const VIEW_TYPE_ATMARK = "atmark-view";
 
-type SourceType = "semble" | "bookmark";
+type SourceType = "semble" | "bookmark" | "margin";
 
 export class ATmarkView extends ItemView {
 	plugin: ATmarkPlugin;
@@ -32,6 +33,10 @@ export class ATmarkView extends ItemView {
 			});
 			this.sources.set("bookmark", {
 				source: new BookmarkSource(this.plugin.client, repo),
+				filters: new Map()
+			});
+			this.sources.set("margin", {
+				source: new MarginSource(this.plugin.client, repo),
 				filters: new Map()
 			});
 		}
@@ -112,7 +117,7 @@ export class ATmarkView extends ItemView {
 
 		// Source selector in the center
 		const sourceSelector = nav.createEl("div", { cls: "atmark-source-selector" });
-		const sources: SourceType[] = ["semble", "bookmark"];
+		const sources: SourceType[] = ["semble", "bookmark", "margin"];
 
 		for (const source of sources) {
 			const label = sourceSelector.createEl("label", { cls: "atmark-source-option" });

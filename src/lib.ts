@@ -11,3 +11,11 @@ export {
 } from "./lib/cosmik";
 
 export { getBookmarks, createBookmark, getTags, createTag } from "./lib/bookmarks";
+
+export {
+	getMarginBookmarks,
+	createMarginBookmark,
+	getMarginCollections,
+	getMarginCollectionItems,
+	createMarginCollection,
+} from "./lib/margin";
