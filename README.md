@@ -33,3 +33,7 @@ The plugin will automatically connect using your credentials.
 ### Opening the View
 
 Open the command palette (Ctrl/Cmd + P) and search for "ATmark: Open view". The view will show your bookmarks from all supported platforms.
+
+## Network Use
+
+This plugin connects to AT Protocol services to fetch and manage your bookmarks.
