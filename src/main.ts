@@ -1,19 +1,15 @@
 import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
-import { createAuthenticatedClient, createPublicClient } from "./auth";
-import { getProfile } from "./lib";
+import { createAuthenticatedClient} from "./auth";
 import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
-import type { ProfileData } from "./components/profileIcon";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
 	client: Client | null = null;
-	profile: ProfileData | null = null;
 
 	async onload() {
 		await this.loadSettings();
-		await this.initClient();
 
 		this.registerView(VIEW_TYPE_ATMARK, (leaf) => {
 			return new ATmarkView(leaf, this);
@@ -41,35 +37,8 @@ export default class ATmarkPlugin extends Plugin {
 				new Notice("Connected");
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);
-				new Notice(`Failed to login as ${identifier}: ${message}`);
-				this.client = createPublicClient(serviceUrl);
-				this.profile = null;
+				console.error("Failed to login:", message);
 			}
-		} else {
-			this.client = createPublicClient(serviceUrl);
-			this.profile = null;
-		}
-	}
-
-	private async fetchProfile() {
-		if (!this.client || !this.settings.identifier) {
-			this.profile = null;
-			return;
-		}
-		try {
-			const resp = await getProfile(this.client, this.settings.identifier);
-			if (resp.ok) {
-				this.profile = {
-					did: resp.data.did,
-					handle: resp.data.handle,
-					displayName: resp.data.displayName,
-					avatar: resp.data.avatar,
-				};
-			} else {
-				this.profile = null;
-			}
-		} catch {
-			this.profile = null;
 		}
 	}
 
@@ -79,11 +48,14 @@ export default class ATmarkPlugin extends Plugin {
 
 
 	async activateView(v: string) {
-		if (!this.profile && this.client && this.settings.identifier) {
-			await this.fetchProfile();
-		}
-
 		const { workspace } = this.app;
+		if (!this.client) {
+			await this.initClient();
+		}
+		if (!this.client) {
+			new Notice("Failed to login. Check your credentials in plugin settings.");
+			return;
+		}
 
 		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(v);

@@ -1,6 +1,5 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
-import { renderProfileIcon } from "../components/profileIcon";
 import { CardDetailModal } from "../components/cardDetailModal";
 import type { ATmarkItem, DataSource, SourceFilter } from "../sources/types";
 import { SembleSource } from "../sources/semble";
@@ -20,6 +19,11 @@ export class ATmarkView extends ItemView {
 		super(leaf);
 		this.plugin = plugin;
 
+		this.initSources();
+
+	}
+
+	initSources() {
 		if (this.plugin.client) {
 			const repo = this.plugin.settings.identifier;
 			this.sources.set("semble", {
@@ -35,6 +39,7 @@ export class ATmarkView extends ItemView {
 				filters: new Map()
 			});
 		}
+
 	}
 
 	getViewType() {
@@ -70,8 +75,12 @@ export class ATmarkView extends ItemView {
 		container.addClass("atmark-view");
 
 		if (!this.plugin.client) {
-			container.createEl("p", { text: "Not connected." });
-			return;
+			await this.plugin.refreshClient();
+			if (!this.plugin.client) {
+				container.createEl("p", { text: "Not logged in, check your credentials in settings." });
+				return;
+			}
+			this.initSources();
 		}
 
 		const loading = container.createEl("p", { text: "Loading..." });
@@ -105,9 +114,6 @@ export class ATmarkView extends ItemView {
 
 	private renderHeader(container: HTMLElement) {
 		const header = container.createEl("div", { cls: "atmark-header" });
-		const nav = header.createEl("div", { cls: "atmark-nav" });
-
-		renderProfileIcon(nav, this.plugin.profile);
 
 		const sourceSelector = header.createEl("div", { cls: "atmark-source-selector" });
 		const sources: SourceType[] = ["semble", "margin", "bookmark"];

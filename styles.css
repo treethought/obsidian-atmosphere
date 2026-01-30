@@ -9,23 +9,6 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.atmark-nav {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 12px;
-	gap: 10px;
-}
-
-.atmark-title {
-	margin: 0;
-	font-size: var(--h1-size);
-	font-weight: var(--font-bold);
-	color: var(--text-accent);
-	flex-shrink: 1;
-	min-width: 0;
-}
-
 .atmark-source-selector {
 	display: flex;
 	align-items: center;
@@ -33,6 +16,7 @@
 	gap: 0;
 	margin-bottom: 12px;
 	border-bottom: 1px solid var(--background-modifier-border);
+	position: relative;
 }
 
 .atmark-source-option {
@@ -916,76 +900,86 @@
 	color: var(--text-normal);
 }
 
-/* Semble-specific Profile Icon */
-.semble-profile-icon {
+/* Profile Icon */
+.atmark-profile-icon {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 6px;
+	padding: 10px 12px;
+	margin-bottom: -1px;
 	margin-left: auto;
+	position: absolute;
+	right: 0;
+	background: transparent;
+	transition: background 0.15s ease;
 }
 
-.semble-avatar-btn {
+.atmark-profile-icon:hover {
+	background: var(--background-modifier-hover);
+}
+
+.atmark-avatar-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px;
-	height: 36px;
+	width: 24px;
+	height: 24px;
 	padding: 0;
 	background: var(--background-secondary);
-	border: 2px solid var(--background-modifier-border);
-	border-radius: var(--radius-full);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 50%;
 	cursor: pointer;
 	overflow: hidden;
 	transition: opacity 0.15s ease;
 }
 
-.semble-avatar-btn:hover {
+.atmark-avatar-btn:hover {
 	opacity: 0.8;
 }
 
-.semble-avatar-img {
+.atmark-avatar-img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	border-radius: var(--radius-full);
+	border-radius: 50%;
 }
 
-.semble-avatar-initials {
-	font-size: var(--font-small);
+.atmark-avatar-initials {
+	font-size: var(--font-smallest);
 	font-weight: var(--font-semibold);
 	color: var(--text-muted);
 }
 
-.semble-avatar-placeholder {
+.atmark-avatar-placeholder {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px;
-	height: 36px;
+	width: 24px;
+	height: 24px;
 	background: var(--background-secondary);
-	border: 2px solid var(--background-modifier-border);
-	border-radius: var(--radius-full);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 50%;
 	color: var(--text-faint);
-	font-size: var(--font-small);
+	font-size: var(--font-smallest);
 }
 
-.semble-profile-info {
+.atmark-profile-info {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	gap: 2px;
+	gap: 1px;
 }
 
-.semble-profile-name {
-	font-size: var(--font-small);
-	font-weight: var(--font-semibold);
-	color: var(--text-normal);
+.atmark-profile-name {
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-medium);
+	color: var(--text-muted);
 	line-height: 1.2;
 }
 
-.semble-profile-handle {
+.atmark-profile-handle {
 	font-size: var(--font-smallest);
-	color: var(--text-muted);
+	color: var(--text-faint);
 	line-height: 1.2;
 }
 
@@ -1133,8 +1127,7 @@
 		padding-bottom: 12px;
 	}
 
-	.atmark-title,
-	.semble-profile-icon {
+	.atmark-profile-icon {
 		display: none;
 	}
 
@@ -1161,8 +1154,14 @@
 	}
 }
 
-.is-mobile .atmark-title,
-.is-mobile .semble-profile-icon {
+/* Hide profile in narrow sidebar widths (but not mobile) */
+@media (max-width: 400px) {
+	.atmark-profile-icon {
+		display: none;
+	}
+}
+
+.is-mobile .atmark-profile-icon {
 	display: none;
 }
 
