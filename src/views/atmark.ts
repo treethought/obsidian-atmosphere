@@ -82,6 +82,7 @@ export class ATmarkView extends ItemView {
 			}
 			this.initSources();
 		}
+		this.renderHeader(container);
 
 		const loading = container.createEl("p", { text: "Loading..." });
 
@@ -89,7 +90,6 @@ export class ATmarkView extends ItemView {
 			const items = await this.fetchItems();
 			loading.remove();
 
-			this.renderHeader(container);
 
 			if (items.length === 0) {
 				container.createEl("p", { text: "No items found." });
