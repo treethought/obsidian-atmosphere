@@ -59,7 +59,7 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc("PDS or PDS entryway URL (leave empty to use bsky.social service) ")
 			.addText((text) =>
 				text
-				// This is a URL and should not be sentence-cased
+					// This is a URL and should not be sentence-cased
 					// eslint-disable-next-line obsidianmd/ui/sentence-case
 					.setPlaceholder("https://bsky.social")
 					.setValue(this.plugin.settings.serviceUrl)
