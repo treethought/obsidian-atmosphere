@@ -33,7 +33,7 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 			await updateFrontMatter(plugin, file, newUri, record, documentUrl);
 			return;
 		}
-		const pub = await getPublication(plugin.client, record.site as ResourceUri);
+		const pub = await getPublication(record.site as ResourceUri);
 		const documentUrl = buildDocumentUrl(pub.value.url, newUri, record);
 
 		await updateFrontMatter(plugin, file, newUri, record, documentUrl);
@@ -127,7 +127,7 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 		pubUri = sel.uri;
 		pub = sel.publication;
 	} else {
-		const pubData = await getPublication(plugin.client!, pubUri);
+		const pubData = await getPublication(pubUri);
 		pub = pubData.value;
 	}
 
@@ -146,7 +146,7 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 		richContent = markdownToPcktContent(content)
 	}
 
-	let record: SiteStandardDocument.Main = {
+	let record = {
 		$type: "site.standard.document",
 		title: title,
 		site: pubUri,
@@ -155,8 +155,8 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 		path: path,
 		tags: tags,
 		textContent,
-		content: richContent as unknown,
-	};
+		content: richContent ?? undefined,
+	} as SiteStandardDocument.Main;
 	return { record, docUri };
 };
 

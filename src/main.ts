@@ -1,9 +1,9 @@
 import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
-import { createAuthenticatedClient } from "./auth";
 import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
 import { publishFileAsDocument } from "./commands/publishDocument";
+import { getAuthClient } from "lib";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
@@ -51,10 +51,10 @@ export default class ATmarkPlugin extends Plugin {
 
 
 	async initClient() {
-		const { identifier, appPassword, serviceUrl } = this.settings;
+		const { identifier, appPassword } = this.settings;
 		if (identifier && appPassword) {
 			try {
-				this.client = await createAuthenticatedClient({ identifier, password: appPassword, serviceUrl });
+				this.client = await getAuthClient({ identifier, password: appPassword });
 				new Notice("Connected");
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);
