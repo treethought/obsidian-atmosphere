@@ -1,9 +1,11 @@
 import { Notice, TFile } from "obsidian";
 import type ATmarkPlugin from "../main";
-import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown } from "../lib";
+import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent } from "../lib";
 import { PublicationSelection, SelectPublicationModal } from "../components/selectPublicationModal";
 import { parseResourceUri, type ResourceUri, } from "@atcute/lexicons";
-import { SiteStandardDocument } from "lexicons";
+import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
+import { PubLeafletContent } from "@atcute/leaflet";
+import { BlogPcktContent } from "@atcute/pckt";
 
 export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 	const file = plugin.app.workspace.getActiveFile();
@@ -22,20 +24,19 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 	try {
 		let { record, docUri } = await buildDocumentRecord(plugin, file);
 		let newUri = await createOrUpdateDocument(plugin, record, docUri);
-		console.log("Document published with URI:", newUri);
 
-		// pubUrl  is at:// record uri or https:// for loose document
+		// pubUrl is at:// record uri or https:// for loose document
 		// fetch pub if at:// so we can get the url
 		// otherwise just use the url as is
 		if (record.site.startsWith("https://")) {
 			const documentUrl = buildDocumentUrl(record.site, newUri, record);
-			await updateFrontMatter(plugin, file, newUri as ResourceUri, record, documentUrl);
+			await updateFrontMatter(plugin, file, newUri, record, documentUrl);
 			return;
 		}
 		const pub = await getPublication(plugin.client, record.site as ResourceUri);
 		const documentUrl = buildDocumentUrl(pub.value.url, newUri, record);
 
-		await updateFrontMatter(plugin, file, newUri as ResourceUri, record, documentUrl);
+		await updateFrontMatter(plugin, file, newUri, record, documentUrl);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
 		new Notice(`Error publishing document: ${message}`);
@@ -88,6 +89,8 @@ async function updateFrontMatter(
 		}
 	});
 }
+
+
 async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
 	const full = await plugin.app.vault.read(file);
 
@@ -118,9 +121,14 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 		title = file.basename;
 	}
 
+	let pub: SiteStandardPublication.Main | null = null;
 	if (!pubUri) {
 		const sel = await selectPublication(plugin);
 		pubUri = sel.uri;
+		pub = sel.publication;
+	} else {
+		const pubData = await getPublication(plugin.client!, pubUri);
+		pub = pubData.value;
 	}
 
 	if (!pubUri) {
@@ -128,8 +136,15 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 	}
 
 	// TODO: determine which lexicon to use for rich content
+	// for now just check url
 	let textContent = stripMarkdown(content);
-	let richContent = markdownToLeafletContent(content)
+
+	let richContent: PubLeafletContent.Main | BlogPcktContent.Main | null = null;
+	if (pub?.url.contains("leaflet.pub")) {
+		richContent = markdownToLeafletContent(content)
+	} else if (pub?.url.contains("pckt.blog")) {
+		richContent = markdownToPcktContent(content)
+	}
 
 	let record: SiteStandardDocument.Main = {
 		$type: "site.standard.document",
@@ -175,9 +190,6 @@ async function createOrUpdateDocument(
 	if (!plugin.client) {
 		throw new Error("Client not initialized");
 	}
-
-	const action = existingUri ? "Updating" : "Creating";
-	console.log(`${action} document${existingUri ? ': ' + existingUri : ''}`);
 
 	const response = existingUri
 		? await putDocument(plugin.client, plugin.settings.identifier, existingUri, doc)

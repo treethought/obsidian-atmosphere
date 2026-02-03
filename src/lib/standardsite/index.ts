@@ -2,7 +2,7 @@ import { ok, type Client } from "@atcute/client";
 import type { ActorIdentifier, GenericUri, Nsid, ResourceUri } from "@atcute/lexicons";
 import { parseResourceUri } from "@atcute/lexicons";
 import { ComAtprotoRepoCreateRecord, ComAtprotoRepoGetRecord, ComAtprotoRepoListRecords, ComAtprotoRepoPutRecord } from "@atcute/atproto";
-import { SiteStandardDocument, SiteStandardPublication } from "lexicons";
+import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
 
 export async function getDocuments(client: Client, repo: string) {
 	const response = await ok(client.call(ComAtprotoRepoListRecords, {

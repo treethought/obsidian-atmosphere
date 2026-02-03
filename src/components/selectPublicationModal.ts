@@ -1,7 +1,7 @@
 import { Modal } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { getPublications } from "../lib";
-import { SiteStandardPublication } from "lexicons";
+import { SiteStandardPublication } from "@atcute/standard-site";
 import type { ResourceUri } from "@atcute/lexicons";
 
 export type PublicationSelection = {
@@ -26,7 +26,6 @@ export class SelectPublicationModal extends Modal {
 
 		contentEl.createEl("h2", { text: "Select Publication" });
 
-		// Load publications
 		if (!this.plugin.client) {
 			contentEl.createEl("p", { text: "Not logged in", cls: "atmark-error" });
 			return;

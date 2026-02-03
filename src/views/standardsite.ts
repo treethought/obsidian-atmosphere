@@ -1,9 +1,15 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { getPublications } from "../lib";
-import type { PublicationRecord } from "../lib/standardsite";
+import type { SiteStandardPublication } from "@atcute/standard-site";
 
 export const VIEW_TYPE_STANDARD_SITE = "standard-site-view";
+
+type PubRecord = {
+	uri: string;
+	cid: string;
+	value: SiteStandardPublication.Main;
+};
 
 export class StandardSiteView extends ItemView {
 	plugin: ATmarkPlugin;
@@ -50,15 +56,8 @@ export class StandardSiteView extends ItemView {
 			const pubsResp = await getPublications(this.plugin.client, this.plugin.settings.identifier);
 			loading.remove();
 
-			if (!pubsResp.ok) {
-				container.createEl("p", {
-					text: `Failed to load publications: ${pubsResp.status}`,
-					cls: "standard-site-error"
-				});
-				return;
-			}
 
-			const publications = pubsResp.data.records;
+			const publications = pubsResp.records;
 
 			if (publications.length === 0) {
 				container.createEl("p", { text: "No publications found." });
@@ -89,10 +88,10 @@ export class StandardSiteView extends ItemView {
 		});
 	}
 
-	private renderPublication(container: HTMLElement, record: PublicationRecord) {
+	private renderPublication(container: HTMLElement, record: PubRecord) {
 		const el = container.createEl("div", { cls: "standard-site-publication" });
 
-		const pub = record.value;
+		const pub = record.value
 
 		// Header with name and actions
 		const header = el.createEl("div", { cls: "standard-site-publication-header" });

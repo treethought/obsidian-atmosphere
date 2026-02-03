@@ -10,6 +10,7 @@
         "@atcute/client": "^4.2.1",
         "@atcute/leaflet": "^1.0.17",
         "@atcute/oauth-browser-client": "^2.0.3",
+        "@atcute/pckt": "^0.1.5",
         "@atcute/standard-site": "^1.0.0",
         "obsidian": "latest",
         "remark-parse": "^11.0.0",
@@ -63,6 +64,8 @@
     "@atcute/multibase": ["@atcute/multibase@1.1.7", "", { "dependencies": { "@atcute/uint8array": "^1.1.0" } }, "sha512-YmWds7U52b7Qri0xNfGeqSOvgyNfHR8Yy/NNDQx4d5TkCX2fHJIo0pXquEhCyMNAwKt53uH5yQDswy4TNP1Zhw=="],
 
     "@atcute/oauth-browser-client": ["@atcute/oauth-browser-client@2.0.3", "", { "dependencies": { "@atcute/client": "^4.1.1", "@atcute/identity-resolver": "^1.2.0", "@atcute/lexicons": "^1.2.5", "@atcute/multibase": "^1.1.6", "@atcute/uint8array": "^1.0.6", "nanoid": "^5.1.6" } }, "sha512-rzUjwhjE4LRRKdQnCFQag/zXRZMEAB1hhBoLfnoQuHwWbmDUCL7fzwC3jRhDPp3om8XaYNDj8a/iqRip0wRqoQ=="],
+
+    "@atcute/pckt": ["@atcute/pckt@0.1.5", "", { "dependencies": { "@atcute/atproto": "^3.1.10", "@atcute/lexicons": "^1.2.7" } }, "sha512-vvQ/jrSvCsipH7DoAZYDHMWQcStJWg1Jt+GBPGyCmYJylb5ZZTrRg6Hy1rEik5WbLUxKdK5SLXSq0/EYwhqOww=="],
 
     "@atcute/repo": ["@atcute/repo@0.1.1", "", { "dependencies": { "@atcute/car": "^5.0.0", "@atcute/cbor": "^2.2.8", "@atcute/cid": "^2.2.6", "@atcute/crypto": "^2.3.0", "@atcute/lexicons": "^1.2.5", "@atcute/mst": "^0.1.0", "@atcute/uint8array": "^1.0.6" } }, "sha512-P5aWjt3bvcquUkUmGPslF0naAfLGRHse5Qdz9/RJYrFuoH0iiEMyRnW6M+3ksOe20GPsMnbq71WbzzFkRFPBtg=="],
 

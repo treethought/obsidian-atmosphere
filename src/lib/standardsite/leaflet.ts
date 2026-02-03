@@ -1,33 +1,13 @@
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import type { Root, RootContent } from "mdast";
+import type { RootContent } from "mdast";
 import {
 	PubLeafletBlocksUnorderedList,
 	PubLeafletContent,
 	PubLeafletPagesLinearDocument,
 } from "@atcute/leaflet";
+import { parseMarkdown, extractText } from "../markdown";
 
-/**
- * Convert markdown to leaflet content structure
- */
 export function markdownToLeafletContent(markdown: string): PubLeafletContent.Main {
-	const blocks = parseMarkdownToBlocks(markdown);
-
-	return {
-		$type: "pub.leaflet.content",
-		pages: [{
-			$type: "pub.leaflet.pages.linearDocument",
-			blocks: blocks,
-		}]
-	};
-}
-
-/**
- * Parse markdown into leaflet block structures using remark
- */
-export function parseMarkdownToBlocks(markdown: string): PubLeafletPagesLinearDocument.Block[] {
-	const tree = unified().use(remarkParse).parse(markdown) as Root;
-
+	const tree = parseMarkdown(markdown);
 	const blocks: PubLeafletPagesLinearDocument.Block[] = [];
 
 	for (const node of tree.children) {
@@ -37,12 +17,15 @@ export function parseMarkdownToBlocks(markdown: string): PubLeafletPagesLinearDo
 		}
 	}
 
-	return blocks;
+	return {
+		$type: "pub.leaflet.content",
+		pages: [{
+			$type: "pub.leaflet.pages.linearDocument",
+			blocks,
+		}],
+	};
 }
 
-/**
- * Convert a single remark AST node to a Leaflet block wrapper
- */
 function convertNodeToBlock(node: RootContent): PubLeafletPagesLinearDocument.Block | null {
 	switch (node.type) {
 		case "heading":
@@ -111,55 +94,7 @@ function convertNodeToBlock(node: RootContent): PubLeafletPagesLinearDocument.Bl
 				alignment: "pub.leaflet.pages.linearDocument#textAlignLeft",
 			};
 
-		// Skip HTML, YAML, etc. for now
 		default:
 			return null;
 	}
-}
-
-/**
- * Extract plain text from any remark node
- * Recursively walks the tree to get all text content
- */
-function extractText(node: any): string {
-	if (node.type === "text") {
-		return node.value;
-	}
-
-	if (node.type === "inlineCode") {
-		return node.value;
-	}
-
-	if (node.children && Array.isArray(node.children)) {
-		return node.children.map(extractText).join("");
-	}
-
-	if (node.value) {
-		return node.value;
-	}
-
-	return "";
-}
-
-/**
- * Strip markdown formatting to plain text
- * Used for the textContent field in standard.site documents
- */
-export function stripMarkdown(markdown: string): string {
-	const tree = unified().use(remarkParse).parse(markdown) as Root;
-
-	function extractAllText(node: any): string {
-		if (node.type === "text") {
-			return node.value;
-		}
-		if (node.type === "inlineCode") {
-			return node.value;
-		}
-		if (node.children && Array.isArray(node.children)) {
-			return node.children.map(extractAllText).join(" ");
-		}
-		return "";
-	}
-
-	return tree.children.map(extractAllText).join("\n\n").trim();
 }
