@@ -1,14 +1,19 @@
-import { App, Modal, Setting } from "obsidian";
+import { Modal } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { getPublications } from "../lib";
 import { SiteStandardPublication } from "lexicons";
+import type { ResourceUri } from "@atcute/lexicons";
+
+export type PublicationSelection = {
+	uri: ResourceUri;
+	publication: SiteStandardPublication.Main;
+};
 
 export class SelectPublicationModal extends Modal {
 	plugin: ATmarkPlugin;
-	onSelect: (publicationUri: string) => void;
-	publications: SiteStandardPublication.Main[] = [];
+	onSelect: (selection: PublicationSelection) => void;
 
-	constructor(plugin: ATmarkPlugin, onSelect: (publicationUri: string) => void) {
+	constructor(plugin: ATmarkPlugin, onSelect: (selection: PublicationSelection) => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.onSelect = onSelect;
@@ -47,25 +52,28 @@ export class SelectPublicationModal extends Modal {
 				const item = listContainer.createEl("div", { cls: "atmark-collection-item" });
 				item.style.cursor = "pointer";
 
-				let val = pub.value as SiteStandardPublication.Main;
+				const publication = pub.value;
 
 				const info = item.createEl("div", { cls: "atmark-collection-item-info" });
-				info.createEl("div", { text: val.name, cls: "atmark-collection-item-name" });
+				info.createEl("div", { text: publication.name, cls: "atmark-collection-item-name" });
 
-				if (pub.value.description) {
+				if (publication.description) {
 					info.createEl("div", {
-						text: val.description,
+						text: publication.description,
 						cls: "atmark-collection-item-desc"
 					});
 				}
 
 				info.createEl("div", {
-					text: val.url,
+					text: publication.url,
 					cls: "atmark-collection-item-desc"
 				});
 
 				item.addEventListener("click", () => {
-					this.onSelect(pub.uri);
+					this.onSelect({
+						uri: pub.uri as ResourceUri,
+						publication,
+					});
 					this.close();
 				});
 			}

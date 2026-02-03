@@ -24,7 +24,9 @@ export {
 export {
 	getDocuments,
 	createDocument,
+	putDocument,
 	getPublications,
+	getPublication,
 	createPublication,
 } from "./lib/standardsite";
 

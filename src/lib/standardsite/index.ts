@@ -1,7 +1,7 @@
 import { ok, type Client } from "@atcute/client";
 import type { ActorIdentifier, GenericUri, Nsid, ResourceUri } from "@atcute/lexicons";
 import { parseResourceUri } from "@atcute/lexicons";
-import { ComAtprotoRepoCreateRecord, ComAtprotoRepoListRecords, ComAtprotoRepoPutRecord } from "@atcute/atproto";
+import { ComAtprotoRepoCreateRecord, ComAtprotoRepoGetRecord, ComAtprotoRepoListRecords, ComAtprotoRepoPutRecord } from "@atcute/atproto";
 import { SiteStandardDocument, SiteStandardPublication } from "lexicons";
 
 export async function getDocuments(client: Client, repo: string) {
@@ -44,13 +44,18 @@ export async function createDocument(
 	});
 }
 
-export async function updateDocument(
+export async function putDocument(
 	client: Client,
 	repo: string,
 	uri: ResourceUri,
 	record: SiteStandardDocument.Main
 ) {
-	record.updatedAt = new Date().toISOString();
+	const now = new Date().toISOString();
+	record.updatedAt = now;
+
+	if (!record.publishedAt) {
+		record.publishedAt = now;
+	}
 
 	const parsed = parseResourceUri(uri);
 	if (!parsed.ok) {
@@ -71,13 +76,42 @@ export async function updateDocument(
 	});
 }
 export async function getPublications(client: Client, repo: string) {
-	return await ok(client.call(ComAtprotoRepoListRecords, {
+	const response = await ok(client.call(ComAtprotoRepoListRecords, {
 		params: {
 			repo: repo as ActorIdentifier,
 			collection: "site.standard.publication" as Nsid,
 			limit: 100,
 		},
 	}));
+
+	return {
+		...response,
+		records: response.records as Array<{
+			uri: string;
+			cid: string;
+			value: SiteStandardPublication.Main;
+		}>,
+	};
+}
+
+export async function getPublication(client: Client, uri: ResourceUri) {
+	const parsed = parseResourceUri(uri);
+	if (!parsed.ok) {
+		throw new Error(`Invalid URI: ${uri}`);
+	}
+
+	const resp = await ok(client.call(ComAtprotoRepoGetRecord, {
+		params: {
+			repo: parsed.value.repo as ActorIdentifier,
+			collection: parsed.value.collection as Nsid,
+			rkey: parsed.value.rkey!,
+		},
+	}));
+
+	return {
+		...resp,
+		value: resp.value as SiteStandardPublication.Main,
+	};
 }
 
 export async function createPublication(
