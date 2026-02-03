@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-atmark",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "View and manage AT Protocol bookmarks.",
 	"main": "main.js",
 	"type": "module",
