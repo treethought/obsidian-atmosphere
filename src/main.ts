@@ -2,7 +2,9 @@ import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
+// import { StandardSiteView, VIEW_TYPE_STANDARD_SITE } from "./views/standardsite";
 import { publishFileAsDocument } from "./commands/publishDocument";
+import { StandardFeedView, VIEW_STANDARD_FEED } from "views/standardfeed";
 import { getAuthClient } from "lib";
 
 export default class ATmarkPlugin extends Plugin {
@@ -16,9 +18,23 @@ export default class ATmarkPlugin extends Plugin {
 			return new ATmarkView(leaf, this);
 		});
 
+		// this.registerView(VIEW_TYPE_STANDARD_SITE, (leaf) => {
+		// 	return new StandardSiteView(leaf, this);
+		// });
+		this.registerView(VIEW_STANDARD_FEED, (leaf) => {
+			return new StandardFeedView(leaf, this);
+		});
 
-		this.addRibbonIcon("layers", "Atmark bookmarks", () => {
+		// included name of the plugin, which contains the acronym "AT"
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		this.addRibbonIcon("layers", "ATmark bookmarks", () => {
 			void this.activateView(VIEW_TYPE_ATMARK);
+		});
+
+		// included name of the plugin, which contains the acronym "AT"
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		this.addRibbonIcon("rss", "ATmark feed", () => {
+			void this.activateView(VIEW_STANDARD_FEED);
 		});
 
 		this.addCommand({
@@ -27,6 +43,11 @@ export default class ATmarkPlugin extends Plugin {
 			callback: () => { void this.activateView(VIEW_TYPE_ATMARK); },
 		});
 
+		// this.addCommand({
+		// 	id: "standard-site-view",
+		// 	name: "View publications",
+		// 	callback: () => { void this.activateView(VIEW_TYPE_STANDARD_SITE); },
+		// });
 
 		this.addCommand({
 			id: "standard-site-publich-document",

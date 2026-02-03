@@ -6,10 +6,11 @@ import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { Main as Subscription } from "@atcute/standard-site/types/graph/subscription";
 
-import { ATRecord } from "lib";
+import { ATRecord, getPublicClient } from "lib";
 import { SiteStandardDocument, SiteStandardGraphSubscription, SiteStandardPublication } from "@atcute/standard-site";
 
-export async function getDocuments(client: Client, repo: string) {
+export async function getDocuments(repo: string) {
+	const client = await getPublicClient(repo);
 	const response = await ok(client.call(ComAtprotoRepoListRecords, {
 		params: {
 			repo: repo as ActorIdentifier,
@@ -80,7 +81,8 @@ export async function putDocument(
 	});
 }
 
-export async function getPublications(client: Client, repo: string) {
+export async function getPublications(repo: string) {
+	const client = await getPublicClient(repo);
 	const response = await ok(client.call(ComAtprotoRepoListRecords, {
 		params: {
 			repo: repo as ActorIdentifier,
@@ -99,12 +101,13 @@ export async function getPublications(client: Client, repo: string) {
 	}
 }
 
-export async function getPublication(client: Client, uri: ResourceUri): Promise<ATRecord<Publication>> {
+
+export async function getPublication(uri: ResourceUri): Promise<ATRecord<Publication>> {
 	const parsed = parseResourceUri(uri);
 	if (!parsed.ok) {
 		throw new Error(`Invalid URI: ${uri}`);
 	}
-
+	const client = await getPublicClient(parsed.value.repo);
 	const resp = await ok(client.call(ComAtprotoRepoGetRecord, {
 		params: {
 			repo: parsed.value.repo,
@@ -156,7 +159,8 @@ export async function createPublication(
 	});
 }
 
-export async function getSubscriptions(client: Client, repo: string) {
+export async function getSubscriptions(repo: string) {
+	const client = await getPublicClient(repo as ActorIdentifier);
 	const response = await ok(client.call(ComAtprotoRepoListRecords, {
 		params: {
 			repo: repo as ActorIdentifier,
@@ -175,14 +179,14 @@ export async function getSubscriptions(client: Client, repo: string) {
 	}
 }
 
-export async function getSubscribedPublications(client: Client, repo: string): Promise<ATRecord<Publication>[]> {
-	const subsResp = await getSubscriptions(client, repo);
+export async function getSubscribedPublications(repo: string): Promise<ATRecord<Publication>[]> {
+	const subsResp = await getSubscriptions(repo);
 	const pubUris = subsResp.records.map(sub => sub.value.publication);
 
 	let pubs: ATRecord<Publication>[] = [];
 	for (const uri of pubUris) {
 		try {
-			const pubResp = await getPublication(client, uri);
+			const pubResp = await getPublication(uri);
 			pubs.push(pubResp);
 		} catch (e) {
 			console.warn(`Failed to fetch publication at ${uri}:`, e);
