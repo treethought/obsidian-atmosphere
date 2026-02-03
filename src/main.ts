@@ -3,7 +3,6 @@ import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient } from "./auth";
 import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
-import { StandardSiteView, VIEW_TYPE_STANDARD_SITE } from "./views/standardsite";
 import { publishFileAsDocument } from "./commands/publishDocument";
 
 export default class ATmarkPlugin extends Plugin {
@@ -17,11 +16,8 @@ export default class ATmarkPlugin extends Plugin {
 			return new ATmarkView(leaf, this);
 		});
 
-		this.registerView(VIEW_TYPE_STANDARD_SITE, (leaf) => {
-			return new StandardSiteView(leaf, this);
-		});
 
-		this.addRibbonIcon("layers", "Atmark", () => {
+		this.addRibbonIcon("layers", "Atmark bookmarks", () => {
 			void this.activateView(VIEW_TYPE_ATMARK);
 		});
 
@@ -31,11 +27,6 @@ export default class ATmarkPlugin extends Plugin {
 			callback: () => { void this.activateView(VIEW_TYPE_ATMARK); },
 		});
 
-		this.addCommand({
-			id: "standard-site-view",
-			name: "View Publications",
-			callback: () => { void this.activateView(VIEW_TYPE_STANDARD_SITE); },
-		});
 
 		this.addCommand({
 			id: "standard-site-publich-document",
