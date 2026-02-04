@@ -24,6 +24,7 @@ export {
 } from "./lib/bookmarks/margin";
 
 export {
+	getPublicationDocuments,
 	createDocument,
 	putDocument,
 	getPublication,

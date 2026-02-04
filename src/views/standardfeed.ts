@@ -1,8 +1,11 @@
 import { getSubscribedPublications } from "lib/standardsite";
 import ATmarkPlugin from "main";
-import { ItemView, WorkspaceLeaf } from "obsidian";
-import { SiteStandardPublication } from "@atcute/standard-site";
+import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
+import { Main as Document } from "@atcute/standard-site/types/document";
+import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { ATRecord } from "lib";
+import { parseResourceUri, ResourceUri } from "@atcute/lexicons";
+import { getPublicationDocuments } from "lib/standardsite";
 
 export const VIEW_STANDARD_FEED = "standard-site-feed";
 
@@ -36,14 +39,14 @@ export class StandardFeedView extends ItemView {
 		container.addClass("standard-site-view");
 		this.renderHeader(container);
 
-		const loading = container.createEl("p", { text: "Loading feed..." });
 
+		const loading = container.createEl("p", { text: "Loading feed..." });
 		try {
 			const pubs = await getSubscribedPublications(this.plugin.client, this.plugin.settings.identifier);
 			loading.remove();
 
 			if (pubs.length === 0) {
-				container.createEl("p", { text: "No subscriptions found. Subscribe to publications first." });
+				container.createEl("p", { text: "No subscriptions found" });
 				return;
 			}
 
@@ -53,31 +56,44 @@ export class StandardFeedView extends ItemView {
 				this.renderPublicationCard(list, pub);
 			}
 		} catch (error) {
-			loading.remove();
 			const message = error instanceof Error ? error.message : String(error);
+			console.error("Failed to load feed:", error);
 			container.createEl("p", { text: `Failed to load feed: ${message}`, cls: "standard-site-error" });
+		} finally {
+			loading.remove();
 		}
 	}
 
-	private renderPublicationCard(container: HTMLElement, pub: ATRecord<SiteStandardPublication.Main>) {
+	private async renderPublicationCard(container: HTMLElement, pub: ATRecord<Publication>) {
 		const card = container.createEl("div", { cls: "standard-site-publication" });
 
-		// Header with name
 		const header = card.createEl("div", { cls: "standard-site-publication-header" });
 		header.createEl("h3", {
 			text: pub.value.name,
 			cls: "standard-site-publication-name"
 		});
+		const extLink = header.createEl("span", { cls: "clickable standard-site-publication-external" });
+		setIcon(extLink, "external-link");
+		extLink.addEventListener("click", (e) => {
+			e.stopPropagation();
+			window.open(pub.value.url, "_blank");
+		});
 
-		// Body
 		const body = card.createEl("div", { cls: "standard-site-publication-body" });
 
-		// URL
+		const handleEl = body.createEl("span", { cls: "standard-site-author-handle" });
+		const parsed = parseResourceUri(pub.uri);
+		if (parsed.ok) {
+			const actor = await this.plugin.client.getActor(parsed.value.repo)
+			if (actor?.handle) {
+				handleEl.setText(`@${actor.handle}`);
+			}
+		}
+
 		const urlLine = body.createEl("div", { cls: "standard-site-publication-url" });
 		const link = urlLine.createEl("a", { text: pub.value.url, href: pub.value.url });
 		link.setAttr("target", "_blank");
 
-		// Description
 		if (pub.value.description) {
 			body.createEl("p", {
 				text: pub.value.description,
@@ -85,14 +101,100 @@ export class StandardFeedView extends ItemView {
 			});
 		}
 
-		// Make card clickable
 		card.addClass("clickable");
-		card.addEventListener("click", (e) => {
-			// Don't trigger if clicking the link
+		card.addEventListener("click", async (e) => {
 			if ((e.target as HTMLElement).tagName !== "A") {
-				window.open(pub.value.url, "_blank");
+				await this.renderPublicationDocuments(pub);
 			}
 		});
+	}
+
+	private async renderPublicationDocuments(pub: ATRecord<Publication>) {
+		const container = this.contentEl;
+		container.empty();
+		container.addClass("standard-site-view");
+
+		const header = container.createEl("div", { cls: "standard-site-header" });
+		const backBtn = header.createEl("span", { text: "Back", cls: "clickable standard-site-back" });
+		setIcon(backBtn, "arrow-left");
+		backBtn.addEventListener("click", async () => await this.render());
+
+		const titleGroup = header.createEl("div", { cls: "standard-site-title-group" });
+		titleGroup.createEl("h2", { text: pub.value.name });
+		const handleEl = titleGroup.createEl("span", { cls: "standard-site-author-handle" });
+
+		const parsed = parseResourceUri(pub.uri);
+		if (!parsed.ok) {
+			// This is the name of the plugin, which contains the acronym "AT"
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
+			container.createEl("p", { text: "Failed to parse publication URI." });
+			console.error("Failed to parse publication URI:", parsed.error);
+
+			return;
+		}
+
+		const actor = await this.plugin.client.getActor(parsed.value.repo)
+		if (actor?.handle) {
+			handleEl.setText(`@${actor.handle}`);
+		}
+
+		const loading = container.createEl("p", { text: "Loading documents..." });
+
+		try {
+			const docsResp = await getPublicationDocuments(this.plugin.client, parsed.value.repo, pub.uri as ResourceUri);
+			loading.remove();
+
+			if (docsResp.records.length === 0) {
+				container.createEl("p", { text: "No documents found for this publication." });
+				return;
+			}
+
+			const list = container.createEl("div", { cls: "standard-site-list" });
+			for (const doc of docsResp.records) {
+				this.renderDocumentCard(list, doc, pub);
+			}
+		} catch (error) {
+			loading.remove();
+			const message = error instanceof Error ? error.message : String(error);
+			container.createEl("p", { text: `Failed to load documents: ${message}`, cls: "standard-site-error" });
+		}
+	}
+
+	private renderDocumentCard(container: HTMLElement, doc: ATRecord<Document>, pub: ATRecord<Publication>) {
+		const card = container.createEl("div", { cls: "standard-site-document" });
+
+		const header = card.createEl("div", { cls: "standard-site-document-header" });
+		header.createEl("h3", { text: doc.value.title, cls: "standard-site-document-title" });
+
+		if (doc.value.path) {
+			const extLink = header.createEl("span", { cls: "clickable standard-site-document-external" });
+			setIcon(extLink, "external-link");
+			const baseUrl = pub.value.url.replace(/\/+$/, "");
+			const path = doc.value.path.startsWith("/") ? doc.value.path : `/${doc.value.path}`;
+			extLink.addEventListener("click", (e) => {
+				e.stopPropagation();
+				window.open(`${baseUrl}${path}`, "_blank");
+			});
+		}
+
+		const body = card.createEl("div", { cls: "standard-site-document-body" });
+
+		if (doc.value.description) {
+			body.createEl("p", { text: doc.value.description, cls: "standard-site-document-description" });
+		}
+
+		if (doc.value.tags && doc.value.tags.length > 0) {
+			const tags = body.createEl("div", { cls: "standard-site-document-tags" });
+			for (const tag of doc.value.tags) {
+				tags.createEl("span", { text: tag, cls: "standard-site-document-tag" });
+			}
+		}
+
+		if (doc.value.publishedAt) {
+			const footer = card.createEl("div", { cls: "standard-site-document-footer" });
+			const date = new Date(doc.value.publishedAt).toLocaleDateString();
+			footer.createEl("span", { text: date, cls: "standard-site-document-date" });
+		}
 	}
 
 	renderHeader(container: HTMLElement) {
