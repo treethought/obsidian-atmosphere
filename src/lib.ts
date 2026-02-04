@@ -37,6 +37,4 @@ export { markdownToLeafletContent } from "./lib/standardsite/leaflet";
 export { markdownToPcktContent } from "./lib/standardsite/pckt";
 export { stripMarkdown } from "./lib/markdown";
 
-export { getAuthClient, getPublicClient } from "./lib/client";
-
 export type ATRecord<T> = Record & { value: T };

@@ -18,13 +18,10 @@ export class ATmarkView extends ItemView {
 	constructor(leaf: WorkspaceLeaf, plugin: ATmarkPlugin) {
 		super(leaf);
 		this.plugin = plugin;
-
-		this.initSources();
-
 	}
 
 	initSources() {
-		if (this.plugin.client) {
+		if (this.plugin.settings.identifier) {
 			const repo = this.plugin.settings.identifier;
 			this.sources.set("semble", {
 				source: new SembleSource(this.plugin.client, repo),
@@ -57,6 +54,7 @@ export class ATmarkView extends ItemView {
 	}
 
 	async onOpen() {
+		this.initSources();
 		await this.render();
 	}
 
@@ -75,14 +73,7 @@ export class ATmarkView extends ItemView {
 		container.empty();
 		container.addClass("atmark-view");
 
-		if (!this.plugin.client) {
-			await this.plugin.refreshClient();
-			if (!this.plugin.client) {
-				container.createEl("p", { text: "Not logged in, check your credentials in settings." });
-				return;
-			}
-			this.initSources();
-		}
+		this.initSources();
 		this.renderHeader(container);
 
 		const loading = container.createEl("p", { text: "Loading..." });
