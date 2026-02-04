@@ -34,21 +34,12 @@ export class StandardFeedView extends ItemView {
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("standard-site-view");
-
-		if (!this.plugin.client) {
-			await this.plugin.refreshClient();
-			if (!this.plugin.client) {
-				container.createEl("p", { text: "Not logged in, check your credentials in settings." });
-				return;
-			}
-		}
-
 		this.renderHeader(container);
 
 		const loading = container.createEl("p", { text: "Loading feed..." });
 
 		try {
-			const pubs = await getSubscribedPublications(this.plugin.settings.identifier);
+			const pubs = await getSubscribedPublications(this.plugin.client, this.plugin.settings.identifier);
 			loading.remove();
 
 			if (pubs.length === 0) {

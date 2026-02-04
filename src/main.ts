@@ -1,26 +1,27 @@
-import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
-import type { Client } from "@atcute/client";
+import { Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
-// import { StandardSiteView, VIEW_TYPE_STANDARD_SITE } from "./views/standardsite";
 import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_STANDARD_FEED } from "views/standardfeed";
-import { getAuthClient } from "lib";
+import { ATClient } from "lib/client";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
-	client: Client | null = null;
+	client: ATClient
 
 	async onload() {
 		await this.loadSettings();
+
+		const creds = {
+			identifier: this.settings.identifier,
+			password: this.settings.appPassword,
+		};
+		this.client = new ATClient(creds);
 
 		this.registerView(VIEW_TYPE_ATMARK, (leaf) => {
 			return new ATmarkView(leaf, this);
 		});
 
-		// this.registerView(VIEW_TYPE_STANDARD_SITE, (leaf) => {
-		// 	return new StandardSiteView(leaf, this);
-		// });
 		this.registerView(VIEW_STANDARD_FEED, (leaf) => {
 			return new StandardFeedView(leaf, this);
 		});
@@ -71,33 +72,9 @@ export default class ATmarkPlugin extends Plugin {
 	}
 
 
-	async initClient() {
-		const { identifier, appPassword } = this.settings;
-		if (identifier && appPassword) {
-			try {
-				this.client = await getAuthClient({ identifier, password: appPassword });
-				new Notice("Connected");
-			} catch (err) {
-				const message = err instanceof Error ? err.message : String(err);
-				console.error("Failed to login:", message);
-			}
-		}
-	}
-
-	async refreshClient() {
-		await this.initClient();
-	}
-
 
 	async activateView(v: string) {
 		const { workspace } = this.app;
-		if (!this.client) {
-			await this.initClient();
-		}
-		if (!this.client) {
-			new Notice("Failed to login. Check your credentials in plugin settings.");
-			return;
-		}
 
 		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(v);

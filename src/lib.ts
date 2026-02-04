@@ -24,7 +24,6 @@ export {
 } from "./lib/bookmarks/margin";
 
 export {
-	getDocuments,
 	createDocument,
 	putDocument,
 	getPublication,
@@ -36,7 +35,5 @@ export {
 export { markdownToLeafletContent } from "./lib/standardsite/leaflet";
 export { markdownToPcktContent } from "./lib/standardsite/pckt";
 export { stripMarkdown } from "./lib/markdown";
-
-export { getAuthClient, getPublicClient } from "./lib/client";
 
 export type ATRecord<T> = Record & { value: T };
