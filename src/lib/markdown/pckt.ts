@@ -12,7 +12,7 @@ import {
 	BlogPcktBlockBlockquote,
 	BlogPcktContent,
 } from "@atcute/pckt";
-import { parseMarkdown, extractText } from "../markdown";
+import { parseMarkdown, extractText, cleanPlaintext } from "../markdown";
 
 type PcktBlock =
 	| BlogPcktBlockText.Main
@@ -141,14 +141,14 @@ function pcktBlockToMdast(block: PcktBlock): RootContent | null {
 		case "blog.pckt.block.heading":
 			return {
 				type: "heading",
-				depth: block.level,
-				children: [{ type: "text", value: block.plaintext }],
+				depth: block.level as 1 | 2 | 3 | 4 | 5 | 6,
+				children: [{ type: "text", value: cleanPlaintext(block.plaintext) }],
 			};
 
 		case "blog.pckt.block.text":
 			return {
 				type: "paragraph",
-				children: [{ type: "text", value: block.plaintext }],
+				children: [{ type: "text", value: cleanPlaintext(block.plaintext) }],
 			};
 
 		case "blog.pckt.block.bulletList":
@@ -158,7 +158,7 @@ function pcktBlockToMdast(block: PcktBlock): RootContent | null {
 				spread: false,
 				children: block.content.map((item: BlogPcktBlockListItem.Main) => {
 					const text = item.content
-						.map((c) => ('plaintext' in c ? c.plaintext : ''))
+						.map((c) => ('plaintext' in c ? cleanPlaintext(c.plaintext) : ''))
 						.join(" ");
 					return {
 						type: "listItem",
@@ -178,7 +178,7 @@ function pcktBlockToMdast(block: PcktBlock): RootContent | null {
 				spread: false,
 				children: block.content.map((item: BlogPcktBlockListItem.Main) => {
 					const text = item.content
-						.map((c) => ('plaintext' in c ? c.plaintext : ''))
+						.map((c) => ('plaintext' in c ? cleanPlaintext(c.plaintext) : ''))
 						.join(" ");
 					return {
 						type: "listItem",
@@ -206,7 +206,7 @@ function pcktBlockToMdast(block: PcktBlock): RootContent | null {
 
 		case "blog.pckt.block.blockquote": {
 			const text = block.content
-				.map((c: BlogPcktBlockText.Main) => c.plaintext)
+				.map((c: BlogPcktBlockText.Main) => cleanPlaintext(c.plaintext))
 				.join("\n");
 			return {
 				type: "blockquote",

@@ -6,7 +6,7 @@ import {
 	PubLeafletContent,
 	PubLeafletPagesLinearDocument,
 } from "@atcute/leaflet";
-import { parseMarkdown, extractText } from "../markdown";
+import { parseMarkdown, extractText, cleanPlaintext } from "../markdown";
 
 export function markdownToLeafletContent(markdown: string): PubLeafletContent.Main {
 	const tree = parseMarkdown(markdown);
@@ -135,13 +135,13 @@ function leafletBlockToMdast(block: LeafletBlockType): RootContent | null {
 			return {
 				type: "heading",
 				depth: block.level as 1 | 2 | 3 | 4 | 5 | 6,
-				children: [{ type: "text", value: block.plaintext }],
+				children: [{ type: "text", value: cleanPlaintext(block.plaintext) }],
 			};
 
 		case "pub.leaflet.blocks.text":
 			return {
 				type: "paragraph",
-				children: [{ type: "text", value: block.plaintext }],
+				children: [{ type: "text", value: cleanPlaintext(block.plaintext) }],
 			};
 
 		case "pub.leaflet.blocks.unorderedList":
@@ -151,7 +151,7 @@ function leafletBlockToMdast(block: LeafletBlockType): RootContent | null {
 				spread: false,
 				children: block.children.map((item: PubLeafletBlocksUnorderedList.ListItem) => {
 					// Extract plaintext from the content, which can be Header, Image, or Text
-					const plaintext = 'plaintext' in item.content ? item.content.plaintext : '';
+					const plaintext = 'plaintext' in item.content ? cleanPlaintext(item.content.plaintext) : '';
 					return {
 						type: "listItem",
 						spread: false,
@@ -168,7 +168,7 @@ function leafletBlockToMdast(block: LeafletBlockType): RootContent | null {
 				type: "code",
 				lang: block.language || null,
 				meta: null,
-				value: block.plaintext,
+				value: block.plaintext, // Keep code blocks as-is to preserve formatting
 			};
 
 		case "pub.leaflet.blocks.horizontalRule":
@@ -181,7 +181,7 @@ function leafletBlockToMdast(block: LeafletBlockType): RootContent | null {
 				type: "blockquote",
 				children: [{
 					type: "paragraph",
-					children: [{ type: "text", value: block.plaintext }],
+					children: [{ type: "text", value: cleanPlaintext(block.plaintext) }],
 				}],
 			};
 
