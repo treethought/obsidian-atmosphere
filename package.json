@@ -30,6 +30,7 @@
 		"@atcute/client": "^4.2.1",
 		"@atcute/identity-resolver": "^1.2.2",
 		"@atcute/leaflet": "^1.0.17",
+		"@atcute/microcosm": "^1.0.1",
 		"@atcute/oauth-browser-client": "^2.0.3",
 		"@atcute/pckt": "^0.1.5",
 		"@atcute/standard-site": "^1.0.0",

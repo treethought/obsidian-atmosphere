@@ -2,3 +2,4 @@
 /// <reference types="@atcute/atproto" />
 /// <reference types="@atcute/standard-site" />
 /// <reference types="@atcute/leaflet" />
+/// <reference types="@atcute/microcosm" />
