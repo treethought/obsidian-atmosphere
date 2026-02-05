@@ -80,6 +80,14 @@ export class Clipper {
 		}
 		const filePath = this.safeFilePath(doc.value.title, clipDir);
 
+		const existingFile = vault.getAbstractFileByPath(filePath);
+		if (existingFile && existingFile instanceof TFile) {
+			const leaf = this.plugin.app.workspace.getLeaf(false);
+			await leaf.openFile(existingFile);
+			new Notice(`Opened existing clipped document: ${filePath}`);
+			return;
+		}
+
 		let content = `# ${doc.value.title}\n\n`;
 
 		if (doc.value.description) {
