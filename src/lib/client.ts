@@ -5,6 +5,7 @@ import { ResolvedActor } from "@atcute/identity-resolver";
 
 const DEFAULT_SERVICE = "https://bsky.social";
 
+// Custom fetch function using Obsidian's requestUrl to avoid CORS issues
 export interface Credentials {
 	identifier: string;
 	password: string;
@@ -12,6 +13,7 @@ export interface Credentials {
 
 export class ATClient extends Client {
 	hh: Handler;
+	slingshot: Client
 
 	constructor(creds?: Credentials) {
 		const handler = new Handler(creds);
@@ -26,7 +28,7 @@ export class ATClient extends Client {
 		return this.hh.cm.session;
 	}
 
-	getActor(identifier: string): Promise<ResolvedActor> {
+	async getActor(identifier: string): Promise<ResolvedActor> {
 		return this.hh.getActor(identifier);
 	}
 }
@@ -49,9 +51,15 @@ export class Handler implements FetchHandlerObject {
 			return cached;
 		}
 		if (isActorIdentifier(identifier)) {
-			const res = await resolveActor(identifier);
-			this.cache.set(key, res);
-			return res;
+			try {
+				const res = await resolveActor(identifier);
+				this.cache.set(key, res);
+				return res;
+			}
+			catch (e) {
+				console.error("Error resolving actor:", e)
+				throw new Error("Failed to resolve actor: " + JSON.stringify(identifier));
+			}
 		} else {
 			throw new Error("Invalid actor identifier: " + JSON.stringify(identifier));
 		}
