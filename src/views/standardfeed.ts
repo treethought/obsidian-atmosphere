@@ -185,10 +185,17 @@ export class StandardFeedView extends ItemView {
 		header.createEl("h3", { text: doc.value.title, cls: "standard-site-document-title" });
 
 		let clipIcon = "book-open";
-		if (this.plugin.clipper.existsInClipDir(doc)) {
+		const isClipped = this.plugin.clipper.existsInClipDir(doc);
+		if (isClipped) {
 			clipIcon = "book-open-check";
 		}
 		const clipBtn = header.createEl("span", { cls: "clickable standard-site-document-clip" });
+		if (isClipped) {
+			clipBtn.addClass("mod-success");
+			clipBtn.setAttribute("aria-label", "Already clipped");
+		} else {
+			clipBtn.setAttribute("aria-label", "Clip document");
+		}
 		setIcon(clipBtn, clipIcon);
 		clipBtn.addEventListener("click", (e) => {
 			e.stopPropagation();
