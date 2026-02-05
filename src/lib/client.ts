@@ -26,6 +26,9 @@ export class ATClient extends Client {
 		return this.hh.cm.session;
 	}
 
+	getActor(identifier: string): Promise<ResolvedActor> {
+		return this.hh.getActor(identifier);
+	}
 }
 
 export class Handler implements FetchHandlerObject {

@@ -24,16 +24,20 @@ export {
 } from "./lib/bookmarks/margin";
 
 export {
+	getPublicationDocuments,
 	createDocument,
 	putDocument,
 	getPublication,
 	getPublications,
 	getSubscribedPublications,
 	createPublication,
+	buildDocumentUrl
 } from "./lib/standardsite";
 
-export { markdownToLeafletContent } from "./lib/standardsite/leaflet";
-export { markdownToPcktContent } from "./lib/standardsite/pckt";
-export { stripMarkdown } from "./lib/markdown";
+export {
+	stripMarkdown,
+	markdownToLeafletContent,
+	markdownToPcktContent,
+} from "./lib/markdown";
 
 export type ATRecord<T> = Record & { value: T };
