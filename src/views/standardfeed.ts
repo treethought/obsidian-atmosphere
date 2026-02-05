@@ -1,11 +1,10 @@
-import { getSubscribedPublications } from "lib/standardsite";
+import { getSubscriptions, getPublication, getPublicationDocuments } from "lib/standardsite";
 import AtmospherePlugin from "main";
 import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { ATRecord } from "lib";
 import { parseResourceUri } from "@atcute/lexicons";
-import { getPublicationDocuments } from "lib/standardsite";
 
 export const VIEW_ATMOSPHERE_STANDARD_FEED = "atmosphere-standard-site-feed";
 
@@ -39,27 +38,32 @@ export class StandardFeedView extends ItemView {
 		container.addClass("standard-site-view");
 		this.renderHeader(container);
 
+		const loading = container.createEl("p", { text: "Loading subscriptions..." });
+		const list = container.createEl("div", { cls: "standard-site-list" });
 
-		const loading = container.createEl("p", { text: "Loading feed..." });
 		try {
-			const pubs = await getSubscribedPublications(this.plugin.client, this.plugin.settings.identifier);
-			loading.remove();
-
-			if (pubs.length === 0) {
+			const subsResp = await getSubscriptions(this.plugin.client, this.plugin.settings.identifier);
+			if (subsResp.records.length === 0) {
+				loading.remove();
 				container.createEl("p", { text: "No subscriptions found" });
 				return;
 			}
 
-			const list = container.createEl("div", { cls: "standard-site-list" });
-
-			for (const pub of pubs) {
-				void this.renderPublicationCard(list, pub);
+			const pubUris = subsResp.records.map(sub => sub.value.publication);
+			for (const uri of pubUris) {
+				try {
+					const pub = await getPublication(this.plugin.client, uri);
+					void this.renderPublicationCard(list, pub);
+				} catch (e) {
+					console.warn(`Failed to fetch publication at ${uri}:`, e);
+				}
 			}
+
+			loading.remove();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			console.error("Failed to load feed:", error);
 			container.createEl("p", { text: `Failed to load feed: ${message}`, cls: "standard-site-error" });
-		} finally {
 			loading.remove();
 		}
 	}
