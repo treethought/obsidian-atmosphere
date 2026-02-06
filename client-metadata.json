@@ -1,12 +1,14 @@
 {
-	"client_id": "https://raw.githubusercontent.com/treethought/obsidian-atmosphere/refs/heads/oauth/client-metadata.json"
+	"client_id": "https://treethought.github.io/obsidian-atmosphere/client-metadata.json",
 	"client_name": "obsidian-atmosphere",
 	"client_uri": "https://example.com",
-	"redirect_uris": ["https://example.com/oauth/callback"],
+	"redirect_uris": [
+		"http://127.0.0.1/callback"
+	],
 	"scope": "atproto transition:generic",
 	"grant_types": ["authorization_code", "refresh_token"],
 	"response_types": ["code"],
 	"token_endpoint_auth_method": "none",
-	"application_type": "web",
+	"application_type": "native",
 	"dpop_bound_access_tokens": true
 }
