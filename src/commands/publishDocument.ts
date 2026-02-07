@@ -102,7 +102,7 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 		publishedAt = fm["publishedAt"]; // Preserve existing if updating
 	}
 
-	if (!title) {
+	if (!title && plugin.settings.publish.useFirstHeaderAsTitle) {
 		title = extractFirstH1(content);
 	}
 
