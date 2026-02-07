@@ -5,12 +5,18 @@ export interface AtProtoSettings {
 	identifier: string;
 	appPassword: string;
 	clipDir: string;
+	publish: {
+		useFirstHeaderAsTitle: boolean;
+	};
 }
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
 	identifier: "",
 	appPassword: "",
 	clipDir: "AtmosphereClips",
+	publish: {
+		useFirstHeaderAsTitle: false,
+	}
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -50,6 +56,7 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
 		new Setting(containerEl)
 			.setName("Clip directory")
 			.setDesc("Directory in your vault to save clips (will be created if it doesn't exist)")
@@ -58,6 +65,18 @@ export class SettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.clipDir)
 					.onChange(async (value) => {
 						this.plugin.settings.clipDir = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Use first header as publish title")
+			.setDesc('Use the first level one header instead of filename when no title property is set')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.publish.useFirstHeaderAsTitle)
+					.onChange(async (value) => {
+						this.plugin.settings.publish.useFirstHeaderAsTitle = value;
 						await this.plugin.saveSettings();
 					})
 			);

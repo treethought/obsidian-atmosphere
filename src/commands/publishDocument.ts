@@ -6,6 +6,7 @@ import { type ResourceUri, } from "@atcute/lexicons";
 import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
 import { PubLeafletContent } from "@atcute/leaflet";
 import { BlogPcktContent } from "@atcute/pckt";
+import { extractFirstH1 } from "lib/markdown";
 
 export async function publishFileAsDocument(plugin: AtmospherePlugin) {
 	const file = plugin.app.workspace.getActiveFile();
@@ -112,6 +113,10 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 		path = normalizePath(fm["path"]);
 		tags = fm["tags"] && Array.isArray(fm["tags"]) ? fm["tags"] : undefined;
 		publishedAt = fm["publishedAt"]; // Preserve existing if updating
+	}
+
+	if (!title && plugin.settings.publish.useFirstHeaderAsTitle) {
+		title = extractFirstH1(content);
 	}
 
 	if (!title) {
