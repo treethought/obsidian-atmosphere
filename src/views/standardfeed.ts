@@ -44,7 +44,10 @@ export class StandardFeedView extends ItemView {
 		}
 
 		this.renderHeader(container);
+		void this.fetchAndRender(container);
+	}
 
+	async fetchAndRender(container: HTMLElement) {
 		const loading = container.createEl("p", { text: "Loading subscriptions..." });
 		const list = container.createEl("div", { cls: "standard-site-list" });
 
@@ -73,6 +76,7 @@ export class StandardFeedView extends ItemView {
 			container.createEl("p", { text: `Failed to load feed: ${message}`, cls: "standard-site-error" });
 			loading.remove();
 		}
+
 	}
 
 	private renderPublicationCard(container: HTMLElement, pub: ATRecord<Publication>) {
