@@ -7,7 +7,7 @@ import { OAuthUserAgent, Session } from "@atcute/oauth-browser-client";
 
 export class ATClient extends Client {
 	private hh: Handler;
-	actor?: ResolvedActor
+	actor?: ResolvedActor;
 
 	constructor() {
 		const oauth = new OAuthHandler();
@@ -17,12 +17,15 @@ export class ATClient extends Client {
 	}
 
 	get loggedIn(): boolean {
-		return (!!this.actor?.did && !!this.hh.session?.info.sub)
+		return !!this.hh.agent && !!this.actor;
 	}
 
 	async login(identifier: string): Promise<void> {
 		await this.hh.login(identifier);
-		this.actor = await this.hh.getActor(this.hh.session!.info.sub);
+		const did = this.hh.agent?.session.info.sub;
+		if (did) {
+			this.actor = await this.hh.getActor(did);
+		}
 	}
 
 	async restoreSession(did: string): Promise<void> {
@@ -32,6 +35,7 @@ export class ATClient extends Client {
 
 	async logout(identifier: string): Promise<void> {
 		await this.hh.logout(identifier);
+		this.actor = undefined;
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -49,9 +53,7 @@ export class ATClient extends Client {
 export class Handler implements FetchHandlerObject {
 	cache: Cache;
 	oauth: OAuthHandler;
-	session?: Session;
 	agent?: OAuthUserAgent;
-	actor?: ResolvedActor;
 
 	constructor(oauth: OAuthHandler) {
 		this.oauth = oauth;
@@ -60,17 +62,16 @@ export class Handler implements FetchHandlerObject {
 
 	async login(identifier: string): Promise<void> {
 		const session = await this.oauth.authorize(identifier);
-		this.session = session;
 		this.agent = new OAuthUserAgent(session);
 	}
+
 	async restoreSession(did: string): Promise<void> {
 		const session = await this.oauth.restore(did);
-		this.session = session;
 		this.agent = new OAuthUserAgent(session);
 	}
+
 	async logout(identifier: string): Promise<void> {
 		await this.oauth.revoke(identifier);
-		this.session = undefined;
 		this.agent = undefined;
 	}
 
@@ -104,7 +105,7 @@ export class Handler implements FetchHandlerObject {
 			return null;
 		}
 
-		const own = (repo === this.session?.info.sub)
+		const own = (repo === this.agent?.session.info.sub);
 		if (!own) {
 			// resolve to get user's PDS
 			const actor = await this.getActor(repo);
