@@ -1,42 +1,31 @@
-import { OAuthClient, MemoryStore, type StoredState, type OAuthSession } from '@atcute/oauth-node-client';
+import {
+	configureOAuth,
+	createAuthorizationUrl,
+	finalizeAuthorization,
+	getSession,
+	deleteStoredSession,
+	OAuthUserAgent,
+	Session,
+} from '@atcute/oauth-browser-client';
 import { compositeResolver } from 'lib/identity';
 import { Notice } from 'obsidian';
-import { OAuthSessionStore } from './oauthStore';
-import { ActorIdentifier, isDid } from "@atcute/lexicons/syntax";
+import { isDid, type ActorIdentifier } from "@atcute/lexicons/syntax";
 import metadata from '../../../client-metadata.json' with { type: 'json' };
 
-const TEN_MINUTES_MS = 10 * 60_000;
 
 export class OAuthHandler {
-	private oauth: OAuthClient
-	private sessionStore: OAuthSessionStore;
 	private callbackResolver: ((value: URLSearchParams) => void) | null = null;
 	private callbackRejecter: ((reason?: Error) => void) | null = null;
 	private callbackTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	constructor(sessionStore: OAuthSessionStore) {
-		this.sessionStore = sessionStore;
-		// Initialize OAuth client with hosted redirect URL
-		this.initClient(metadata.redirect_uris[0] || "");
-	}
-
-	initClient(redirectUri: string): void {
-		this.oauth = new OAuthClient({
+	constructor() {
+		configureOAuth({
 			metadata: {
 				client_id: metadata.client_id,
-				redirect_uris: [redirectUri],
-				scope: 'atproto include:at.margin.authFull repo:site.standard.document repo:network.cosmik.card repo:network.cosmik.collection repo:network.cosmik.collectionLink',
+				redirect_uri: metadata.redirect_uris[0]!,
 			},
-			actorResolver: compositeResolver,
-			stores: {
-				sessions: this.sessionStore,
-				states: new MemoryStore<string, StoredState>({
-					maxSize: 10,
-					ttl: TEN_MINUTES_MS,
-					ttlAutopurge: true,
-				}),
-			},
-		});
+			identityResolver: compositeResolver,
+		})
 	}
 
 	handleCallback(params: URLSearchParams): void {
@@ -51,16 +40,12 @@ export class OAuthHandler {
 		}
 	}
 
-	async authorize(identifier: string): Promise<OAuthSession> {
-		const redirectUri = metadata.redirect_uris[0]!;
-
-		// Reinitialize client with current redirect URI
-		this.initClient(redirectUri);
-
-		const { url } = await this.oauth.authorize({
+	async authorize(identifier: string): Promise<Session> {
+		const authUrl = await createAuthorizationUrl({
 			target: { type: 'account', identifier: identifier as ActorIdentifier },
-			redirectUri: redirectUri,
+			scope: metadata.scope,
 		});
+		await sleep(200);
 
 		// Create promise for callback
 		const waitForCallback = new Promise<URLSearchParams>((resolve, reject) => {
@@ -77,26 +62,39 @@ export class OAuthHandler {
 			}, 5 * 60_000);
 		});
 
-		window.open(url.href, '_blank');
-		new Notice('Continue login in the browser')
+		window.open(authUrl, '_blank');
+		new Notice('Continue login in the browser');
 
 		const params = await waitForCallback;
-		const { session } = await this.oauth.callback(params, { redirectUri });
-
+		const { session } = await finalizeAuthorization(params);
 		return session;
 	}
 
-	async restore(did: string): Promise<OAuthSession> {
+	async restore(did: string): Promise<Session> {
 		if (!isDid(did)) {
 			throw new Error("Invalid DID: " + did);
 		}
-		return await this.oauth.restore(did)
+		const session = await getSession(did, { allowStale: false });
+		if (!session) {
+			throw new Error("No session found for DID: " + did);
+		}
+		return session;
 	}
 
 	async revoke(did: string): Promise<void> {
 		if (!isDid(did)) {
 			throw new Error("Invalid DID: " + did);
 		}
-		await this.oauth.revoke(did);
+		const session = await getSession(did, { allowStale: true });
+		if (session) {
+			try {
+				const agent = new OAuthUserAgent(session);
+				await agent.signOut();
+			} catch (error) {
+				console.error('Error during sign out:', error);
+			}
+		}
+		deleteStoredSession(did);
 	}
+
 }

@@ -12,7 +12,7 @@
         "@atcute/identity-resolver-node": "^1.0.3",
         "@atcute/leaflet": "^1.0.17",
         "@atcute/microcosm": "^1.0.1",
-        "@atcute/oauth-node-client": "^1.1.0",
+        "@atcute/oauth-browser-client": "^3.0.0",
         "@atcute/pckt": "^0.1.5",
         "@atcute/standard-site": "^1.0.0",
         "obsidian": "latest",
@@ -71,11 +71,11 @@
 
     "@atcute/multibase": ["@atcute/multibase@1.1.7", "", { "dependencies": { "@atcute/uint8array": "^1.1.0" } }, "sha512-YmWds7U52b7Qri0xNfGeqSOvgyNfHR8Yy/NNDQx4d5TkCX2fHJIo0pXquEhCyMNAwKt53uH5yQDswy4TNP1Zhw=="],
 
+    "@atcute/oauth-browser-client": ["@atcute/oauth-browser-client@3.0.0", "", { "dependencies": { "@atcute/client": "^4.2.1", "@atcute/identity-resolver": "^1.2.2", "@atcute/lexicons": "^1.2.7", "@atcute/multibase": "^1.1.7", "@atcute/oauth-crypto": "^0.1.0", "@atcute/oauth-types": "^0.1.0", "nanoid": "^5.1.6" } }, "sha512-7AbKV8tTe7aRJNJV7gCcWHSVEADb2nr58O1p7dQsf73HSe9pvlBkj/Vk1yjjtH691uAVYkwhHSh0bC7D8XdwJw=="],
+
     "@atcute/oauth-crypto": ["@atcute/oauth-crypto@0.1.0", "", { "dependencies": { "@atcute/multibase": "^1.1.7", "@atcute/uint8array": "^1.1.0", "@badrap/valita": "^0.4.6", "nanoid": "^5.1.6" } }, "sha512-qZYDCNLF/4B6AndYT1rsQelN8621AC5u/sL5PHvlr/qqAbmmUwCBGjEgRSyZtHE1AqD60VNiSMlOgAuEQTSl3w=="],
 
     "@atcute/oauth-keyset": ["@atcute/oauth-keyset@0.1.0", "", { "dependencies": { "@atcute/oauth-crypto": "^0.1.0" } }, "sha512-+wqT/+I5Lg9VzKnKY3g88+N45xbq+wsdT6bHDGqCVa2u57gRvolFF4dY+weMfc/OX641BIZO6/o+zFtKBsMQnQ=="],
-
-    "@atcute/oauth-node-client": ["@atcute/oauth-node-client@1.1.0", "", { "dependencies": { "@atcute/client": "^4.2.1", "@atcute/identity": "^1.1.3", "@atcute/identity-resolver": "^1.2.2", "@atcute/lexicons": "^1.2.7", "@atcute/oauth-crypto": "^0.1.0", "@atcute/oauth-keyset": "^0.1.0", "@atcute/oauth-types": "^0.1.1", "@atcute/util-fetch": "^1.0.5", "@badrap/valita": "^0.4.6", "nanoid": "^5.1.6" } }, "sha512-xCp/VfjtvTeKscKR/oI2hdMTp1/DaF/7ll8b6yZOCgbKlVDDfhCn5mmKNVARGTNaoywxrXG3XffbWCIx3/E87w=="],
 
     "@atcute/oauth-types": ["@atcute/oauth-types@0.1.1", "", { "dependencies": { "@atcute/identity": "^1.1.3", "@atcute/lexicons": "^1.2.7", "@atcute/oauth-keyset": "^0.1.0", "@badrap/valita": "^0.4.6" } }, "sha512-u+3KMjse3Uc/9hDyilu1QVN7IpcnjVXgRzhddzBB8Uh6wePHNVBDdi9wQvFTVVA3zmxtMJVptXRyLLg6Ou9bqg=="],
 

@@ -2,28 +2,27 @@ import { Client, FetchHandlerObject, simpleFetchHandler } from "@atcute/client";
 import { resolveActor } from "./identity";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { ResolvedActor } from "@atcute/identity-resolver";
-import type { OAuthSession } from "@atcute/oauth-node-client";
-import { OAuthHandler } from "./oauth/oauth";
-import { OAuthSessionStore } from "./oauth/oauthStore";
+import { OAuthHandler, } from "./oauth/oauth";
+import { OAuthUserAgent, Session } from "@atcute/oauth-browser-client";
 
 export class ATClient extends Client {
 	private hh: Handler;
 	actor?: ResolvedActor
 
-	constructor(store: OAuthSessionStore) {
-		const oauth = new OAuthHandler(store);
+	constructor() {
+		const oauth = new OAuthHandler();
 		const hh = new Handler(oauth);
 		super({ handler: hh });
 		this.hh = hh;
 	}
 
 	get loggedIn(): boolean {
-		return (!!this.actor?.did && !!this.hh.session?.did)
+		return (!!this.actor?.did && !!this.hh.session?.info.sub)
 	}
 
 	async login(identifier: string): Promise<void> {
 		await this.hh.login(identifier);
-		this.actor = await this.hh.getActor(this.hh.session!.did);
+		this.actor = await this.hh.getActor(this.hh.session!.info.sub);
 	}
 
 	async restoreSession(did: string): Promise<void> {
@@ -45,12 +44,13 @@ export class ATClient extends Client {
 }
 
 /**
- * Custom handler that wraps OAuthSession and adds PDS routing logic
+ * Custom handler that wraps OAuthUserAgent and adds PDS routing logic
  */
 export class Handler implements FetchHandlerObject {
 	cache: Cache;
 	oauth: OAuthHandler;
-	session?: OAuthSession
+	session?: Session;
+	agent?: OAuthUserAgent;
 	actor?: ResolvedActor;
 
 	constructor(oauth: OAuthHandler) {
@@ -61,14 +61,17 @@ export class Handler implements FetchHandlerObject {
 	async login(identifier: string): Promise<void> {
 		const session = await this.oauth.authorize(identifier);
 		this.session = session;
+		this.agent = new OAuthUserAgent(session);
 	}
 	async restoreSession(did: string): Promise<void> {
 		const session = await this.oauth.restore(did);
 		this.session = session;
+		this.agent = new OAuthUserAgent(session);
 	}
 	async logout(identifier: string): Promise<void> {
 		await this.oauth.revoke(identifier);
 		this.session = undefined;
+		this.agent = undefined;
 	}
 
 	handleOAuthCallback(params: URLSearchParams): void {
@@ -101,7 +104,7 @@ export class Handler implements FetchHandlerObject {
 			return null;
 		}
 
-		const own = (repo === this.session?.did)
+		const own = (repo === this.session?.info.sub)
 		if (!own) {
 			// resolve to get user's PDS
 			const actor = await this.getActor(repo);
@@ -126,9 +129,9 @@ export class Handler implements FetchHandlerObject {
 			// use configureable public fetch for external PDS
 			const sfh = simpleFetchHandler({ service: pds });
 			resp = await sfh(pathname, init);
-		} else if (this.session) {
+		} else if (this.agent) {
 			// oauth handler if we are logged in
-			resp = await this.session.handle(pathname, init);
+			resp = await this.agent.handle(pathname, init);
 		} else {
 			// default public fetch to bsky
 			const sfh = simpleFetchHandler({ service: "https://bsky.social" });

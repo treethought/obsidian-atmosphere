@@ -32,7 +32,7 @@
 		"@atcute/identity-resolver-node": "^1.0.3",
 		"@atcute/leaflet": "^1.0.17",
 		"@atcute/microcosm": "^1.0.1",
-		"@atcute/oauth-node-client": "^1.1.0",
+		"@atcute/oauth-browser-client": "^3.0.0",
 		"@atcute/pckt": "^0.1.5",
 		"@atcute/standard-site": "^1.0.0",
 		"obsidian": "latest",

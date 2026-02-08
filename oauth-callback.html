@@ -107,8 +107,9 @@
 	<script>
 		(function() {
 			try {
-				// Extract OAuth parameters from URL
-				const params = new URLSearchParams(window.location.search);
+				// Extract OAuth parameters from URL hash (not search string)
+				// OAuth providers redirect with params in the hash fragment
+				const params = new URLSearchParams(window.location.hash.slice(1));
 
 				// Build Obsidian URI with all OAuth callback parameters
 				const obsidianUri = `obsidian://atmosphere-oauth?${params.toString()}`;

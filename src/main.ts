@@ -5,7 +5,6 @@ import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
-import { OAuthSessionStore } from "lib/oauth/oauthStore";
 
 export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
@@ -14,7 +13,7 @@ export default class AtmospherePlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		this.client = new ATClient(new OAuthSessionStore(this));
+		this.client = new ATClient();
 		this.clipper = new Clipper(this);
 
 		this.registerObsidianProtocolHandler('atmosphere-oauth', (params) => {
@@ -25,7 +24,6 @@ export default class AtmospherePlugin extends Plugin {
 						urlParams.set(key, String(value));
 					}
 				}
-
 				this.client.handleOAuthCallback(urlParams);
 				new Notice('Authentication completed! Processing...');
 			} catch (error) {
@@ -96,7 +94,6 @@ export default class AtmospherePlugin extends Plugin {
 				console.error("Failed to restore session:", e);
 				// Clear invalid session data
 				this.settings.did = undefined;
-				this.settings.oauth.sessions = {};
 				await this.saveSettings();
 				new Notice("Session expired. Please login by opening settings");
 				return false;

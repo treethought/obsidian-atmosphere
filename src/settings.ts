@@ -3,14 +3,10 @@ import type AtmospherePlugin from "./main";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { VIEW_ATMOSPHERE_STANDARD_FEED } from "./views/standardfeed";
-import { StoredSession } from "@atcute/oauth-node-client";
 
 export interface AtProtoSettings {
 	did?: string;
 	clipDir: string;
-	oauth: {
-		sessions?: Record<string, StoredSession> | null;
-	}
 	publish: {
 		useFirstHeaderAsTitle: boolean;
 	};
@@ -18,7 +14,6 @@ export interface AtProtoSettings {
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
 	clipDir: "AtmosphereClips",
-	oauth: {},
 	publish: {
 		useFirstHeaderAsTitle: false,
 	}
