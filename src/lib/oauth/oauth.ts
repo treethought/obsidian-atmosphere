@@ -41,10 +41,13 @@ export class OAuthHandler {
 	}
 
 	async authorize(identifier: string): Promise<Session> {
+		console.log('[OAuth] Starting authorization for:', identifier);
 		const authUrl = await createAuthorizationUrl({
 			target: { type: 'account', identifier: identifier as ActorIdentifier },
 			scope: metadata.scope,
+			display: 'touch',
 		});
+		console.log('[OAuth] createAuthorizationUrl completed, auth URL state:', new URL(authUrl).searchParams.get('request_uri'));
 		await new Promise((resolve) => setTimeout(resolve, 200));
 
 		const waitForCallback = new Promise<URLSearchParams>((resolve, reject) => {
