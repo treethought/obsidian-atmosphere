@@ -3,7 +3,7 @@
 	"client_name": "obsidian-atmosphere-beta",
 	"client_uri": "https://treethought.github.io/obsidian-atmosphere",
 	"redirect_uris": [
-		"obsidian://atmosphere-oauth"
+		"https://treethought.github.io/obsidian-atmosphere/oauth-callback.html"
 	],
 	"scope": "atproto include:at.margin.authFull repo:site.standard.document repo:network.cosmik.card repo:network.cosmik.collection repo:network.cosmik.collectionLink",
 	"grant_types": ["authorization_code", "refresh_token"],
