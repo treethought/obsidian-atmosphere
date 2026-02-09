@@ -67,13 +67,28 @@ export class OAuthHandler {
 		const params = await waitForCallback;
 
 		console.log('[OAuth] Callback received, params:', params.toString());
+		console.log('[OAuth] State:', params.get('state'));
+		console.log('[OAuth] Code:', params.get('code'));
+		console.log('[OAuth] Issuer:', params.get('iss'));
 		console.log('[OAuth] Waiting for IndexedDB to settle...');
+
+		// Wait for IndexedDB transactions to settle (important on mobile)
+		// PAR writes OAuth state to IndexedDB, need to ensure it's committed
+		// before finalizeAuthorization tries to read it
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		console.log('[OAuth] Starting token exchange...');
-		const { session } = await finalizeAuthorization(params);
-		console.log('[OAuth] Token exchange successful!');
-		return session;
+		console.log('[OAuth] About to call finalizeAuthorization with state:', params.get('state'));
+
+		try {
+			const { session } = await finalizeAuthorization(params);
+			console.log('[OAuth] Token exchange successful!');
+			return session;
+		} catch (error) {
+			console.error('[OAuth] Token exchange failed:', error);
+			console.error('[OAuth] Failed with params:', params.toString());
+			throw error;
+		}
 	}
 
 	async restore(did: string): Promise<Session> {
