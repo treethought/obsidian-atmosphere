@@ -1,11 +1,9 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
-import { setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { getBookmarks } from "../lib";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
 import { EditBookmarkModal } from "../components/editBookmarkModal";
-import { CreateTagModal } from "../components/createTagModal";
 import type { Main as Bookmark } from "../lexicons/types/community/lexicon/bookmarks/bookmark";
 
 type BookmarkRecord = Record & { value: Bookmark };
@@ -194,40 +192,5 @@ export class BookmarkSource implements DataSource {
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void {
-		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
-
-		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-		titleRow.createEl("h3", { text: "Tags", cls: "atmosphere-filter-title" });
-
-		const createBtn = titleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
-		setIcon(createBtn, "plus");
-		createBtn.addEventListener("click", () => {
-			new CreateTagModal(plugin, onDataChange).open();
-		});
-
-		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allChip = chips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${!activeFilters.has("bookmarkTag") ? "atmosphere-chip-active" : ""}`,
-		});
-		allChip.addEventListener("click", () => {
-			activeFilters.delete("bookmarkTag");
-			onChange();
-		});
-
-		void this.getAvailableFilters().then(tags => {
-			for (const tag of tags) {
-				const chip = chips.createEl("button", {
-					text: tag.label,
-					cls: `atmosphere-chip ${activeFilters.get("bookmarkTag")?.value === tag.value ? "atmosphere-chip-active" : ""}`,
-				});
-				chip.addEventListener("click", () => {
-					activeFilters.set("bookmarkTag", tag);
-					onChange();
-				});
-			}
-		});
-	}
 }
+

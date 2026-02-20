@@ -1,6 +1,5 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
-import { setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { getSembleCollections, getSembleCards, getSembleCollectionLinks } from "../lib";
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
@@ -8,7 +7,6 @@ import type { Main as Collection } from "../lexicons/types/network/cosmik/collec
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
 import { EditCardModal } from "../components/editCardModal";
-import { CreateCollectionModal } from "../components/createCollectionModal";
 
 type CardRecord = Record & { value: Card };
 type CollectionRecord = Record & { value: Collection };
@@ -215,40 +213,5 @@ export class SembleSource implements DataSource {
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void {
-		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
-
-		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-		titleRow.createEl("h3", { text: "Semble collections", cls: "atmosphere-filter-title" });
-
-		const createBtn = titleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
-		setIcon(createBtn, "plus");
-		createBtn.addEventListener("click", () => {
-			new CreateCollectionModal(plugin, onDataChange).open();
-		});
-
-		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allChip = chips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${!activeFilters.has("sembleCollection") ? "atmosphere-chip-active" : ""}`,
-		});
-		allChip.addEventListener("click", () => {
-			activeFilters.delete("sembleCollection");
-			onChange();
-		});
-
-		void this.getAvailableCollections().then(collections => {
-			for (const collection of collections) {
-				const chip = chips.createEl("button", {
-					text: collection.label,
-					cls: `atmosphere-chip ${activeFilters.get("sembleCollection")?.value === collection.value ? "atmosphere-chip-active" : ""}`,
-				});
-				chip.addEventListener("click", () => {
-					activeFilters.set("sembleCollection", collection);
-					onChange();
-				});
-			}
-		});
-	}
 }
+

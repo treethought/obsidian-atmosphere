@@ -24,6 +24,4 @@ export interface DataSource {
 	fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]>;
 	getAvailableCollections?(): Promise<SourceFilter[]>;
 	getAvilableTags?(): Promise<SourceFilter[]>;
-
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void;
 }

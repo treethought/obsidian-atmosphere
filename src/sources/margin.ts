@@ -1,6 +1,5 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
-import { setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { getMarginBookmarks, getMarginCollections, getMarginCollectionItems } from "../lib";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
@@ -8,7 +7,6 @@ import type { Main as MarginBookmark } from "../lexicons/types/at/margin/bookmar
 import type { Main as MarginCollection } from "../lexicons/types/at/margin/collection";
 import type { Main as MarginCollectionItem } from "../lexicons/types/at/margin/collectionItem";
 import { EditMarginBookmarkModal } from "../components/editMarginBookmarkModal";
-import { CreateMarginCollectionModal } from "../components/createMarginCollectionModal";
 
 type MarginBookmarkRecord = Record & { value: MarginBookmark };
 type MarginCollectionRecord = Record & { value: MarginCollection };
@@ -234,101 +232,5 @@ export class MarginSource implements DataSource {
 
 	}
 
-	async getAvailableFilters(): Promise<SourceFilter[]> {
-		const filters: SourceFilter[] = [];
-
-		const collectionsResp = await getMarginCollections(this.client, this.repo);
-		if (collectionsResp.ok) {
-			const collections = collectionsResp.data.records as MarginCollectionRecord[];
-			filters.push(...collections.map((c: MarginCollectionRecord) => ({
-				type: "marginCollection",
-				value: c.uri,
-				label: c.value.name,
-			})));
-		}
-
-		const bookmarksResp = await getMarginBookmarks(this.client, this.repo);
-		if (bookmarksResp.ok) {
-			const tagSet = new Set<string>();
-			const records = bookmarksResp.data.records as MarginBookmarkRecord[];
-			for (const record of records) {
-				if (record.value.tags) {
-					for (const tag of record.value.tags) {
-						tagSet.add(tag);
-					}
-				}
-			}
-			filters.push(...Array.from(tagSet).map(tag => ({
-				type: "marginTag",
-				value: tag,
-				label: tag,
-			})));
-		}
-
-		return filters;
-	}
-
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void {
-		const collectionsSection = container.createEl("div", { cls: "atmosphere-filter-section" });
-
-		const collectionsTitleRow = collectionsSection.createEl("div", { cls: "atmosphere-filter-title-row" });
-		collectionsTitleRow.createEl("h3", { text: "Collections", cls: "atmosphere-filter-title" });
-
-		const createCollectionBtn = collectionsTitleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
-		setIcon(createCollectionBtn, "plus");
-		createCollectionBtn.addEventListener("click", () => {
-			new CreateMarginCollectionModal(plugin, onDataChange).open();
-		});
-
-		const collectionsChips = collectionsSection.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allCollectionsChip = collectionsChips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${!activeFilters.has("marginCollection") ? "atmosphere-chip-active" : ""}`,
-		});
-		allCollectionsChip.addEventListener("click", () => {
-			activeFilters.delete("marginCollection");
-			onChange();
-		});
-
-		const tagsSection = container.createEl("div", { cls: "atmosphere-filter-section" });
-
-		const tagsTitleRow = tagsSection.createEl("div", { cls: "atmosphere-filter-title-row" });
-		tagsTitleRow.createEl("h3", { text: "Tags", cls: "atmosphere-filter-title" });
-
-		const tagsChips = tagsSection.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allTagsChip = tagsChips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${!activeFilters.has("marginTag") ? "atmosphere-chip-active" : ""}`,
-		});
-		allTagsChip.addEventListener("click", () => {
-			activeFilters.delete("marginTag");
-			onChange();
-		});
-
-		void this.getAvailableFilters().then(filters => {
-			for (const filter of filters) {
-				if (filter.type === "marginCollection") {
-					const chip = collectionsChips.createEl("button", {
-						text: filter.label,
-						cls: `atmosphere-chip ${activeFilters.get("marginCollection")?.value === filter.value ? "atmosphere-chip-active" : ""}`,
-					});
-					chip.addEventListener("click", () => {
-						activeFilters.set("marginCollection", filter);
-						onChange();
-					});
-				} else if (filter.type === "marginTag") {
-					const chip = tagsChips.createEl("button", {
-						text: filter.label,
-						cls: `atmosphere-chip ${activeFilters.get("marginTag")?.value === filter.value ? "atmosphere-chip-active" : ""}`,
-					});
-					chip.addEventListener("click", () => {
-						activeFilters.set("marginTag", filter);
-						onChange();
-					});
-				}
-			}
-		});
-	}
 }
+

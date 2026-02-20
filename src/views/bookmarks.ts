@@ -1,6 +1,9 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { CardDetailModal } from "../components/cardDetailModal";
+import { CreateCollectionModal } from "../components/createCollectionModal";
+import { CreateMarginCollectionModal } from "../components/createMarginCollectionModal";
+import { CreateTagModal } from "../components/createTagModal";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types";
 import { SembleSource } from "../sources/semble";
 import { BookmarkSource } from "../sources/bookmark";
@@ -160,18 +163,128 @@ export class AtmosphereView extends ItemView {
 			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
 		});
 
-		const filtersContainer = container.createEl("div", { cls: "atmosphere-filters" });
-		for (const sourceType of this.activeSources) {
+		this.renderFilters(container);
+	}
+
+	private renderFilters(container: HTMLElement) {
+		const filtersEl = container.createEl("div", { cls: "atmosphere-filters" });
+
+		const collectionSources = (["semble", "margin"] as SourceType[]).filter(s => this.activeSources.has(s));
+		if (collectionSources.length > 0) {
+			this.renderCollectionsFilter(filtersEl, collectionSources);
+		}
+
+		const tagSources = (["margin", "bookmark"] as SourceType[]).filter(s => this.activeSources.has(s));
+		if (tagSources.length > 0) {
+			this.renderTagsFilter(filtersEl, tagSources);
+		}
+	}
+
+	private renderCollectionsFilter(container: HTMLElement, collectionSources: SourceType[]) {
+		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
+
+		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
+		titleRow.createEl("h3", { text: "Collections", cls: "atmosphere-filter-title" });
+
+		if (collectionSources.includes("semble")) {
+			const btn = titleRow.createEl("button", {
+				cls: "atmosphere-filter-create-btn",
+				attr: { "aria-label": "New Semble collection" },
+			});
+			setIcon(btn, "plus");
+			btn.addEventListener("click", () => new CreateCollectionModal(this.plugin, () => void this.refresh()).open());
+		}
+		if (collectionSources.includes("margin")) {
+			const btn = titleRow.createEl("button", {
+				cls: "atmosphere-filter-create-btn",
+				attr: { "aria-label": "New Margin collection" },
+			});
+			setIcon(btn, "plus");
+			btn.addEventListener("click", () => new CreateMarginCollectionModal(this.plugin, () => void this.refresh()).open());
+		}
+
+		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
+
+		const noFilter = collectionSources.every(s => {
+			const key = s === "semble" ? "sembleCollection" : "marginCollection";
+			return !this.sources.get(s)?.filters.has(key);
+		});
+		const allChip = chips.createEl("button", {
+			text: "All",
+			cls: `atmosphere-chip ${noFilter ? "atmosphere-chip-active" : ""}`,
+		});
+		allChip.addEventListener("click", () => {
+			this.sources.get("semble")?.filters.delete("sembleCollection");
+			this.sources.get("margin")?.filters.delete("marginCollection");
+			void this.render();
+		});
+
+		for (const sourceType of collectionSources) {
 			const sourceData = this.sources.get(sourceType);
-			if (sourceData) {
-				sourceData.source.renderFilterUI(
-					filtersContainer,
-					sourceData.filters,
-					() => void this.render(),
-					() => void this.refresh(),
-					this.plugin
-				);
-			}
+			if (!sourceData?.source.getAvailableCollections) continue;
+			void sourceData.source.getAvailableCollections().then(collections => {
+				for (const collection of collections) {
+					const isActive = sourceData.filters.get(collection.type)?.value === collection.value;
+					const chip = chips.createEl("button", {
+						text: collection.label ?? collection.value,
+						cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
+					});
+					chip.addEventListener("click", () => {
+						sourceData.filters.set(collection.type, collection);
+						void this.render();
+					});
+				}
+			});
+		}
+	}
+
+	private renderTagsFilter(container: HTMLElement, tagSources: SourceType[]) {
+		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
+
+		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
+		titleRow.createEl("h3", { text: "Tags", cls: "atmosphere-filter-title" });
+
+		if (tagSources.includes("bookmark")) {
+			const btn = titleRow.createEl("button", {
+				cls: "atmosphere-filter-create-btn",
+				attr: { "aria-label": "New tag" },
+			});
+			setIcon(btn, "plus");
+			btn.addEventListener("click", () => new CreateTagModal(this.plugin, () => void this.refresh()).open());
+		}
+
+		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
+
+		const noFilter = tagSources.every(s => {
+			const key = s === "margin" ? "marginTag" : "bookmarkTag";
+			return !this.sources.get(s)?.filters.has(key);
+		});
+		const allChip = chips.createEl("button", {
+			text: "All",
+			cls: `atmosphere-chip ${noFilter ? "atmosphere-chip-active" : ""}`,
+		});
+		allChip.addEventListener("click", () => {
+			this.sources.get("margin")?.filters.delete("marginTag");
+			this.sources.get("bookmark")?.filters.delete("bookmarkTag");
+			void this.render();
+		});
+
+		for (const sourceType of tagSources) {
+			const sourceData = this.sources.get(sourceType);
+			if (!sourceData?.source.getAvilableTags) continue;
+			void sourceData.source.getAvilableTags().then(tags => {
+				for (const tag of tags) {
+					const isActive = sourceData.filters.get(tag.type)?.value === tag.value;
+					const chip = chips.createEl("button", {
+						text: tag.label ?? tag.value,
+						cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
+					});
+					chip.addEventListener("click", () => {
+						sourceData.filters.set(tag.type, tag);
+						void this.render();
+					});
+				}
+			});
 		}
 	}
 
