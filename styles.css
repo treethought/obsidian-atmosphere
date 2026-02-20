@@ -986,9 +986,37 @@
 }
 
 .atmosphere-detail-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmosphere-detail-edit-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 4px;
+	color: var(--text-accent);
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s ease;
+}
+
+.atmosphere-detail-edit-btn:hover {
+	opacity: 1;
+}
+
+.atmosphere-detail-edit-btn svg {
+	width: 16px;
+	height: 16px;
 }
 
 .atmosphere-detail-date {

@@ -28,6 +28,7 @@ export class CardDetailModal extends Modal {
 			cls: `atmosphere-badge atmosphere-badge-source atmosphere-badge-${source}`,
 		});
 
+
 		this.renderBody(contentEl);
 
 		const collections = this.item.getCollections();
@@ -52,6 +53,15 @@ export class CardDetailModal extends Modal {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
 			cls: "atmosphere-detail-date",
 		});
+
+		if (this.item.canEdit()) {
+			const editBtn = footer.createEl("button", { cls: "atmosphere-detail-edit-btn" });
+			setIcon(editBtn, "pencil");
+			editBtn.addEventListener("click", () => {
+				this.close();
+				this.item.openEditModal(this.onSuccess);
+			});
+		}
 	}
 
 	private renderBody(contentEl: HTMLElement) {
