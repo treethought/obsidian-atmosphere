@@ -65,7 +65,7 @@
 	font-weight: var(--font-semibold);
 }
 
-.atmosphere-source-radio {
+.atmosphere-source-toggle {
 	display: none;
 }
 

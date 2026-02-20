@@ -13,7 +13,7 @@ type SourceType = "semble" | "bookmark" | "margin";
 
 export class AtmosphereView extends ItemView {
 	plugin: AtmospherePlugin;
-	activeSource: SourceType = "semble";
+	activeSources: Set<SourceType> = new Set(["semble"]);
 	sources: Map<SourceType, { source: DataSource; filters: Map<string, SourceFilter> }> = new Map();
 
 	constructor(leaf: WorkspaceLeaf, plugin: AtmospherePlugin) {
@@ -58,11 +58,17 @@ export class AtmosphereView extends ItemView {
 	}
 
 	async fetchItems(): Promise<ATBookmarkItem[]> {
-		const sourceData = this.sources.get(this.activeSource);
-		if (!sourceData) return [];
-
-		const filters = Array.from(sourceData.filters.values());
-		return await sourceData.source.fetchItems(filters, this.plugin);
+		const results = await Promise.all(
+			Array.from(this.activeSources).map(async (sourceType) => {
+				const sourceData = this.sources.get(sourceType);
+				if (!sourceData) return [];
+				const filters = Array.from(sourceData.filters.values());
+				return await sourceData.source.fetchItems(filters, this.plugin);
+			})
+		);
+		return results.flat().sort((a, b) =>
+			new Date(b.getCreatedAt()).getTime() - new Date(a.getCreatedAt()).getTime()
+		);
 	}
 
 	async render() {
@@ -123,14 +129,17 @@ export class AtmosphereView extends ItemView {
 		for (const source of sources) {
 			const label = sourceSelector.createEl("label", { cls: "atmosphere-source-option" });
 
-			const radio = label.createEl("input", {
-				type: "radio",
-				cls: "atmosphere-source-radio",
+			const checkbox = label.createEl("input", {
+				type: "checkbox",
+				cls: "atmosphere-source-toggle",
 			});
-			radio.name = "atmosphere-source";
-			radio.checked = this.activeSource === source;
-			radio.addEventListener("change", () => {
-				this.activeSource = source;
+			checkbox.checked = this.activeSources.has(source);
+			checkbox.addEventListener("change", () => {
+				if (checkbox.checked) {
+					this.activeSources.add(source);
+				} else {
+					this.activeSources.delete(source);
+				}
 				void this.render();
 			});
 
@@ -152,15 +161,17 @@ export class AtmosphereView extends ItemView {
 		});
 
 		const filtersContainer = container.createEl("div", { cls: "atmosphere-filters" });
-		const sourceData = this.sources.get(this.activeSource);
-		if (sourceData) {
-			sourceData.source.renderFilterUI(
-				filtersContainer,
-				sourceData.filters,
-				() => void this.render(),
-				() => void this.refresh(),
-				this.plugin
-			);
+		for (const sourceType of this.activeSources) {
+			const sourceData = this.sources.get(sourceType);
+			if (sourceData) {
+				sourceData.source.renderFilterUI(
+					filtersContainer,
+					sourceData.filters,
+					() => void this.render(),
+					() => void this.refresh(),
+					this.plugin
+				);
+			}
 		}
 	}
 
