@@ -36,8 +36,13 @@ export async function getPublicationDocuments(client: Client, repo: string, pubU
 	}));
 
 	const pubDocs = response.records.filter(record => {
-		const parsed = parse(SiteStandardDocument.mainSchema, record.value);
-		return parsed.site === pubUri;
+		try {
+			const parsed = parse(SiteStandardDocument.mainSchema, record.value);
+			return parsed.site === pubUri;
+		} catch (e) {
+			console.warn(`Failed to parse record as site.standard.document: ${record.uri}:`, e);
+			return false;
+		}
 	});
 
 	return {
