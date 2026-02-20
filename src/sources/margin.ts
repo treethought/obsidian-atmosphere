@@ -51,35 +51,24 @@ class MarginItem implements ATBookmarkItem {
 		new EditMarginBookmarkModal(this.plugin, this.record, onSuccess).open();
 	}
 
-	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "atmosphere-item-content" });
-		const bookmark = this.record.value;
+	getTitle(): string | undefined {
+		return this.record.value.title || undefined;
+	}
 
+	getDescription(): string | undefined {
+		return this.record.value.description || undefined;
+	}
 
-		if (bookmark.tags && bookmark.tags.length > 0) {
-			const tagsContainer = el.createEl("div", { cls: "atmosphere-item-tags" });
-			for (const tag of bookmark.tags) {
-				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
-			}
-		}
+	getImageUrl(): string | undefined {
+		return undefined;
+	}
 
-		if (bookmark.title) {
-			el.createEl("div", { text: bookmark.title, cls: "atmosphere-item-title" });
-		}
+	getUrl(): string | undefined {
+		return this.record.value.source;
+	}
 
-		if (bookmark.description) {
-			const desc = bookmark.description.length > 200
-				? bookmark.description.slice(0, 200) + "…"
-				: bookmark.description;
-			el.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
-		}
-
-		const link = el.createEl("a", {
-			text: bookmark.source,
-			href: bookmark.source,
-			cls: "atmosphere-item-url",
-		});
-		link.setAttr("target", "_blank");
+	getSiteName(): string | undefined {
+		return undefined;
 	}
 
 	renderDetail(container: HTMLElement): void {

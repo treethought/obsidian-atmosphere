@@ -1,7 +1,6 @@
 import type AtmospherePlugin from "../main";
 
 export interface ATBookmarkItem {
-	render(container: HTMLElement): void;
 	renderDetail(container: HTMLElement): void;
 	canAddNotes(): boolean;
 	canEdit(): boolean;
@@ -10,6 +9,12 @@ export interface ATBookmarkItem {
 	getCid(): string;
 	getCreatedAt(): string;
 	getSource(): "semble" | "bookmark" | "margin";
+	getTitle(): string | undefined;
+	getDescription(): string | undefined;
+	getImageUrl(): string | undefined;
+	getUrl(): string | undefined;
+	getSiteName(): string | undefined;
+	getTags(): string[];
 	getCollections(): Array<{ uri: string; name: string }>;
 	setCollections(collections: Array<{ uri: string; name: string }>): void;
 	getAttachedNotes?(): Array<{ uri: string; text: string }>;

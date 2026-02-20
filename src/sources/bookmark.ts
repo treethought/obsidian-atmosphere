@@ -54,48 +54,31 @@ class BookmarkItem implements ATBookmarkItem {
 		new EditBookmarkModal(this.plugin, this.record, onSuccess).open();
 	}
 
-	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "atmosphere-item-content" });
-		const bookmark = this.record.value;
-		const enriched = bookmark.enriched;
+	getTitle(): string | undefined {
+		const enriched = this.record.value.enriched;
+		return enriched?.title || this.record.value.title || undefined;
+	}
 
-		if (bookmark.tags && bookmark.tags.length > 0) {
-			const tagsContainer = el.createEl("div", { cls: "atmosphere-item-tags" });
-			for (const tag of bookmark.tags) {
-				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
-			}
-		}
+	getDescription(): string | undefined {
+		const enriched = this.record.value.enriched;
+		return enriched?.description || this.record.value.description || undefined;
+	}
 
-		const title = enriched?.title || bookmark.title;
-		if (title) {
-			el.createEl("div", { text: title, cls: "atmosphere-item-title" });
-		}
+	getImageUrl(): string | undefined {
+		const enriched = this.record.value.enriched;
+		return enriched?.image || enriched?.thumb || undefined;
+	}
 
-		const imageUrl = enriched?.image || enriched?.thumb;
-		if (imageUrl) {
-			const img = el.createEl("img", { cls: "atmosphere-item-image" });
-			img.src = imageUrl;
-			img.alt = title || "Image";
-		}
+	getUrl(): string | undefined {
+		return this.record.value.subject;
+	}
 
-		const description = enriched?.description || bookmark.description;
-		if (description) {
-			const desc = description.length > 200
-				? description.slice(0, 200) + "…"
-				: description;
-			el.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
-		}
+	getSiteName(): string | undefined {
+		return this.record.value.enriched?.siteName || undefined;
+	}
 
-		if (enriched?.siteName) {
-			el.createEl("span", { text: enriched.siteName, cls: "atmosphere-item-site" });
-		}
-
-		const link = el.createEl("a", {
-			text: bookmark.subject,
-			href: bookmark.subject,
-			cls: "atmosphere-item-url",
-		});
-		link.setAttr("target", "_blank");
+	getTags(): string[] {
+		return this.record.value.tags || [];
 	}
 
 	renderDetail(container: HTMLElement): void {
@@ -143,10 +126,6 @@ class BookmarkItem implements ATBookmarkItem {
 				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
 			}
 		}
-	}
-
-	getTags() {
-		return this.record.value.tags || [];
 	}
 
 	getRecord() {

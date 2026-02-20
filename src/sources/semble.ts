@@ -53,46 +53,50 @@ class SembleItem implements ATBookmarkItem {
 		new EditCardModal(this.plugin, this.record.uri, this.record.cid, onSuccess).open();
 	}
 
-	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "atmosphere-item-content" });
-
+	getTitle(): string | undefined {
 		const card = this.record.value;
-
-		if (card.type === "NOTE") {
-			const content = card.content as NoteContent;
-			el.createEl("p", { text: content.text, cls: "atmosphere-semble-card-text" });
-		} else if (card.type === "URL") {
-			const content = card.content as UrlContent;
-			const meta = content.metadata;
-
-			if (meta?.title) {
-				el.createEl("div", { text: meta.title, cls: "atmosphere-item-title" });
-			}
-
-			if (meta?.imageUrl) {
-				const img = el.createEl("img", { cls: "atmosphere-item-image" });
-				img.src = meta.imageUrl;
-				img.alt = meta.title || "Image";
-			}
-
-			if (meta?.description) {
-				const desc = meta.description.length > 200
-					? meta.description.slice(0, 200) + "…"
-					: meta.description;
-				el.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
-			}
-
-			if (meta?.siteName) {
-				el.createEl("span", { text: meta.siteName, cls: "atmosphere-item-site" });
-			}
-
-			const link = el.createEl("a", {
-				text: content.url,
-				href: content.url,
-				cls: "atmosphere-item-url",
-			});
-			link.setAttr("target", "_blank");
+		if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.title || undefined;
 		}
+		return undefined;
+	}
+
+	getDescription(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "NOTE") {
+			return (card.content as NoteContent).text;
+		} else if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.description || undefined;
+		}
+		return undefined;
+	}
+
+	getImageUrl(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.imageUrl || undefined;
+		}
+		return undefined;
+	}
+
+	getUrl(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "URL") {
+			return (card.content as UrlContent).url;
+		}
+		return undefined;
+	}
+
+	getSiteName(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.siteName || undefined;
+		}
+		return undefined;
+	}
+
+	getTags(): string[] {
+		return [];
 	}
 
 	renderDetail(container: HTMLElement): void {

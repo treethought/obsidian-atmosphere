@@ -369,7 +369,44 @@ export class AtmosphereView extends ItemView {
 			});
 		}
 
-		item.render(el);
+		const content = el.createEl("div", { cls: "atmosphere-item-content" });
+
+		const tags = item.getTags();
+		if (tags.length > 0) {
+			const tagsContainer = content.createEl("div", { cls: "atmosphere-item-tags" });
+			for (const tag of tags) {
+				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
+			}
+		}
+
+		const title = item.getTitle();
+		if (title) {
+			content.createEl("div", { text: title, cls: "atmosphere-item-title" });
+		}
+
+		const imageUrl = item.getImageUrl();
+		if (imageUrl) {
+			const img = content.createEl("img", { cls: "atmosphere-item-image" });
+			img.src = imageUrl;
+			img.alt = title || "Image";
+		}
+
+		const description = item.getDescription();
+		if (description) {
+			const desc = description.length > 200 ? description.slice(0, 200) + "…" : description;
+			content.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
+		}
+
+		const siteName = item.getSiteName();
+		if (siteName) {
+			content.createEl("span", { text: siteName, cls: "atmosphere-item-site" });
+		}
+
+		const url = item.getUrl();
+		if (url) {
+			const link = content.createEl("a", { text: url, href: url, cls: "atmosphere-item-url" });
+			link.setAttr("target", "_blank");
+		}
 
 		const footer = el.createEl("div", { cls: "atmosphere-item-footer" });
 		footer.createEl("span", {
