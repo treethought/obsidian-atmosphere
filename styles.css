@@ -223,6 +223,13 @@
 	gap: 8px;
 }
 
+
+.atmosphere-item-source-icon svg,
+.atmosphere-badge svg {
+	width: 14px;
+	height: 14px;
+}
+
 .atmosphere-item-edit-btn {
 	display: flex;
 	align-items: center;
@@ -256,31 +263,22 @@
 }
 
 .atmosphere-badge {
-	font-size: 10px;
-	padding: 3px 8px;
-	border-radius: 12px;
-	text-transform: capitalize;
-	font-weight: var(--font-normal);
+	display: flex;
+	align-items: center;
 	flex-shrink: 0;
-	letter-spacing: 0.3px;
 }
 
+
 .atmosphere-badge-semble {
-	background: color-mix(in srgb, var(--color-orange) 15%, transparent);
 	color: var(--color-orange);
-	border: 1px solid color-mix(in srgb, var(--color-orange) 30%, transparent);
 }
 
 .atmosphere-badge-bookmark {
-	background: color-mix(in srgb, var(--color-cyan) 15%, transparent);
 	color: var(--color-cyan);
-	border: 1px solid color-mix(in srgb, var(--color-cyan) 30%, transparent);
 }
 
 .atmosphere-badge-margin {
-	background: color-mix(in srgb, #2563eb 15%, transparent);
 	color: #2563eb;
-	border: 1px solid color-mix(in srgb, #2563eb 30%, transparent);
 }
 
 .atmosphere-item-footer {
@@ -292,6 +290,12 @@
 	margin-top: auto;
 	padding-top: 8px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmosphere-item-footer-left {
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .atmosphere-item-footer-center {
@@ -396,12 +400,26 @@
 }
 
 .atmosphere-collection {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	font-size: var(--font-smallest);
 	padding: 2px 8px;
 	border-radius: var(--radius-s);
 	background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
 	color: var(--interactive-accent);
 	border: 1px solid color-mix(in srgb, var(--interactive-accent) 30%, transparent);
+}
+
+.atmosphere-collection-source-icon {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.atmosphere-collection-source-icon svg {
+	width: 10px;
+	height: 10px;
 }
 
 .atmosphere-item-collections-section {
@@ -882,10 +900,6 @@
 	color: var(--text-on-accent);
 }
 
-.atmosphere-badge-source {
-	font-size: var(--font-smallest);
-	opacity: 0.8;
-}
 
 .atmosphere-semble-badge-semble {
 	background: color-mix(in srgb, var(--color-green) 80%, var(--background-primary));
@@ -981,9 +995,6 @@
 	max-width: 600px;
 }
 
-.atmosphere-detail-header {
-	margin-bottom: 16px;
-}
 
 .atmosphere-detail-footer {
 	display: flex;
@@ -992,6 +1003,12 @@
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmosphere-detail-footer-left {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .atmosphere-detail-edit-btn {

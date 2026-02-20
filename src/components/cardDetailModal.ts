@@ -21,14 +21,6 @@ export class CardDetailModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("atmosphere-detail-modal");
 
-		const header = contentEl.createEl("div", { cls: "atmosphere-detail-header" });
-		const source = this.item.getSource();
-		header.createEl("span", {
-			text: source,
-			cls: `atmosphere-badge atmosphere-badge-source atmosphere-badge-${source}`,
-		});
-
-
 		this.renderBody(contentEl);
 
 		const collections = this.item.getCollections();
@@ -49,7 +41,11 @@ export class CardDetailModal extends Modal {
 		}
 
 		const footer = contentEl.createEl("div", { cls: "atmosphere-detail-footer" });
-		footer.createEl("span", {
+		const footerLeft = footer.createEl("div", { cls: "atmosphere-detail-footer-left" });
+		const source = this.item.getSource();
+		const sourceBadge = footerLeft.createEl("span", { cls: `atmosphere-badge atmosphere-badge-${source}` });
+		setIcon(sourceBadge, sourceIconId(source));
+		footerLeft.createEl("span", {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
 			cls: "atmosphere-detail-date",
 		});
@@ -120,9 +116,10 @@ export class CardDetailModal extends Modal {
 		section.createEl("span", { text: "In collections", cls: "atmosphere-detail-collections-label" });
 		const badges = section.createEl("div", { cls: "atmosphere-detail-collections-badges" });
 		for (const collection of collections) {
-			const prefix = collection.source === "semble" ? "s" : collection.source === "margin" ? "m" : "";
-			const label = prefix ? `${prefix} ${collection.name}` : collection.name;
-			badges.createEl("span", { text: label, cls: "atmosphere-collection" });
+			const badge = badges.createEl("span", { cls: "atmosphere-collection" });
+			const iconEl = badge.createEl("span", { cls: "atmosphere-collection-source-icon" });
+			setIcon(iconEl, sourceIconId(collection.source as "semble" | "bookmark" | "margin"));
+			badge.createEl("span", { text: collection.name });
 		}
 	}
 
@@ -219,4 +216,10 @@ export class CardDetailModal extends Modal {
 	onClose() {
 		this.contentEl.empty();
 	}
+}
+
+function sourceIconId(source: "semble" | "bookmark" | "margin"): string {
+	if (source === "semble") return "atmosphere-semble";
+	if (source === "margin") return "atmosphere-margin";
+	return "bookmark";
 }

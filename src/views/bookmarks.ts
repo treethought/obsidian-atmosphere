@@ -354,13 +354,13 @@ export class AtmosphereView extends ItemView {
 			}).open();
 		});
 
-		const header = el.createEl("div", { cls: "atmosphere-item-header" });
 		const source = item.getSource();
-		header.createEl("span", {
-			text: source,
-			cls: `atmosphere-badge atmosphere-badge-${source}`,
-		});
 
+		const header = el.createEl("div", { cls: "atmosphere-item-header" });
+		const title = item.getTitle();
+		if (title) {
+			header.createEl("div", { text: title, cls: "atmosphere-item-title" });
+		}
 		if (item.canEdit()) {
 			const editBtn = header.createEl("button", {
 				cls: "atmosphere-item-edit-btn",
@@ -382,11 +382,6 @@ export class AtmosphereView extends ItemView {
 			for (const tag of tags) {
 				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
 			}
-		}
-
-		const title = item.getTitle();
-		if (title) {
-			content.createEl("div", { text: title, cls: "atmosphere-item-title" });
 		}
 
 		const imageUrl = item.getImageUrl();
@@ -414,7 +409,10 @@ export class AtmosphereView extends ItemView {
 		}
 
 		const footer = el.createEl("div", { cls: "atmosphere-item-footer" });
-		footer.createEl("span", {
+		const footerLeft = footer.createEl("div", { cls: "atmosphere-item-footer-left" });
+		const sourceBadge = footerLeft.createEl("span", { cls: `atmosphere-badge atmosphere-badge-${source} atmosphere-item-source-icon` });
+		setIcon(sourceBadge, sourceIconId(source));
+		footerLeft.createEl("span", {
 			text: new Date(item.getCreatedAt()).toLocaleDateString(),
 			cls: "atmosphere-date",
 		});
@@ -445,4 +443,10 @@ export class AtmosphereView extends ItemView {
 	}
 
 	async onClose() { }
+}
+
+function sourceIconId(source: "semble" | "bookmark" | "margin"): string {
+	if (source === "semble") return "atmosphere-semble";
+	if (source === "margin") return "atmosphere-margin";
+	return "bookmark";
 }
