@@ -14,14 +14,19 @@ export interface ATBookmarkItem {
 }
 
 export interface SourceFilter {
-	type: string;
 	value: string;
 	label?: string;
 }
 
+export interface CollectionAssociation {
+	record: string;
+	collection: string;
+}
+
 export interface DataSource {
 	readonly name: "semble" | "bookmark" | "margin";
-	fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]>;
+	fetchItems(plugin: AtmospherePlugin, filteredCollections: Set<string>, filteredTags: Set<string>): Promise<ATBookmarkItem[]>;
 	getAvailableCollections?(): Promise<SourceFilter[]>;
 	getAvilableTags?(): Promise<SourceFilter[]>;
+	getCollectionAssociations?(): Promise<CollectionAssociation[]>;
 }

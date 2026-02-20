@@ -5,7 +5,7 @@ import { getSembleCollections, getSembleCards, getSembleCollectionLinks } from "
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
-import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
+import type { ATBookmarkItem, CollectionAssociation, DataSource, SourceFilter } from "./types";
 import { EditCardModal } from "../components/editCardModal";
 
 type CardRecord = Record & { value: Card };
@@ -155,7 +155,7 @@ export class SembleSource implements DataSource {
 		this.repo = repo;
 	}
 
-	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
+	async fetchItems(plugin: AtmospherePlugin, filteredCollections: Set<string> | undefined, _filteredTags: Set<string>): Promise<ATBookmarkItem[]> {
 		const cardsResp = await getSembleCards(this.client, this.repo);
 		if (!cardsResp.ok) return [];
 
@@ -177,23 +177,13 @@ export class SembleSource implements DataSource {
 		// Filter out NOTE cards that are attached to other cards
 		let sembleCards = allSembleCards.filter((record: CardRecord) => {
 			if (record.value.type === "NOTE") {
-				const hasParent = record.value.parentCard?.uri;
-				return !hasParent;
+				return !record.value.parentCard?.uri;
 			}
 			return true;
 		});
 
-		const collectionFilter = filters.find(f => f.type === "sembleCollection");
-		if (collectionFilter && collectionFilter.value) {
-			const linksResp = await getSembleCollectionLinks(this.client, this.repo);
-			if (linksResp.ok) {
-				const links = linksResp.data.records as CollectionLinkRecord[];
-				const filteredLinks = links.filter((link: CollectionLinkRecord) =>
-					link.value.collection.uri === collectionFilter.value
-				);
-				const cardUris = new Set(filteredLinks.map((link: CollectionLinkRecord) => link.value.card.uri));
-				sembleCards = sembleCards.filter((card: CardRecord) => cardUris.has(card.uri));
-			}
+		if (filteredCollections !== undefined) {
+			sembleCards = sembleCards.filter((card: CardRecord) => filteredCollections.has(card.uri));
 		}
 
 		return sembleCards.map((record: CardRecord) =>
@@ -207,9 +197,18 @@ export class SembleSource implements DataSource {
 
 		const collections = collectionsResp.data.records as CollectionRecord[];
 		return collections.map((c: CollectionRecord) => ({
-			type: "sembleCollection",
 			value: c.uri,
 			label: c.value.name,
+		}));
+	}
+
+	async getCollectionAssociations(): Promise<CollectionAssociation[]> {
+		const linksResp = await getSembleCollectionLinks(this.client, this.repo);
+		if (!linksResp.ok) return [];
+
+		return (linksResp.data.records as CollectionLinkRecord[]).map(link => ({
+			record: link.value.card.uri,
+			collection: link.value.collection.uri,
 		}));
 	}
 

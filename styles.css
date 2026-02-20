@@ -166,8 +166,8 @@
 .atmosphere-chip {
 	padding: 3px 10px;
 	border-radius: var(--radius-m);
-	border: none;
-	background: var(--background-modifier-border);
+	border: 1px solid var(--background-modifier-border);
+	background: transparent;
 	color: var(--text-muted);
 	font-size: var(--font-smallest);
 	font-weight: var(--font-medium);
@@ -177,20 +177,20 @@
 }
 
 .atmosphere-chip:hover {
-	background: var(--background-modifier-border-hover);
+	border-color: var(--background-modifier-border-hover);
 	color: var(--text-normal);
-	transform: translateY(-1px);
 }
 
 .atmosphere-chip-active {
-	background: var(--interactive-accent);
-	color: var(--text-on-accent);
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+	border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
+	color: var(--interactive-accent);
 	font-weight: var(--font-semibold);
 }
 
 .atmosphere-chip-active:hover {
-	background: var(--interactive-accent-hover);
-	transform: translateY(-1px);
+	background: color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+	border-color: var(--interactive-accent);
 }
 
 .atmosphere-grid {
@@ -278,9 +278,9 @@
 }
 
 .atmosphere-badge-margin {
-	background: color-mix(in srgb, var(--color-purple) 15%, transparent);
-	color: var(--color-purple);
-	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
+	background: color-mix(in srgb, #2563eb 15%, transparent);
+	color: #2563eb;
+	border: 1px solid color-mix(in srgb, #2563eb 30%, transparent);
 }
 
 .atmosphere-item-footer {

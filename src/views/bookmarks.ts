@@ -12,12 +12,14 @@ import { renderLoginMessage } from "components/loginMessage";
 
 export const VIEW_TYPE_ATMOSPHERE_BOOKMARKS = "atmosphere-bookmarks";
 
-type SourceType = "semble" | "bookmark" | "margin";
+type SourceName = "semble" | "bookmark" | "margin";
 
 export class AtmosphereView extends ItemView {
 	plugin: AtmospherePlugin;
-	activeSources: Set<SourceType> = new Set(["semble"]);
-	sources: Map<SourceType, { source: DataSource; filters: Map<string, SourceFilter> }> = new Map();
+	activeSources: Set<SourceName> = new Set(["semble"]);
+	selectedCollections: Set<string> = new Set();
+	selectedTags: Set<string> = new Set();
+	sources: Map<SourceName, { source: DataSource }> = new Map();
 
 	constructor(leaf: WorkspaceLeaf, plugin: AtmospherePlugin) {
 		super(leaf);
@@ -27,20 +29,10 @@ export class AtmosphereView extends ItemView {
 	initSources() {
 		if (this.plugin.settings.did) {
 			const repo = this.plugin.settings.did;
-			this.sources.set("semble", {
-				source: new SembleSource(this.plugin.client, repo),
-				filters: new Map()
-			});
-			this.sources.set("bookmark", {
-				source: new BookmarkSource(this.plugin.client, repo),
-				filters: new Map()
-			});
-			this.sources.set("margin", {
-				source: new MarginSource(this.plugin.client, repo),
-				filters: new Map()
-			});
+			this.sources.set("semble", { source: new SembleSource(this.plugin.client, repo) });
+			this.sources.set("bookmark", { source: new BookmarkSource(this.plugin.client, repo) });
+			this.sources.set("margin", { source: new MarginSource(this.plugin.client, repo) });
 		}
-
 	}
 
 	getViewType() {
@@ -61,12 +53,14 @@ export class AtmosphereView extends ItemView {
 	}
 
 	async fetchItems(): Promise<ATBookmarkItem[]> {
+		const allowedUris = await this.getFilteredItemUris();
+
 		const results = await Promise.all(
 			Array.from(this.activeSources).map(async (sourceType) => {
 				const sourceData = this.sources.get(sourceType);
 				if (!sourceData) return [];
-				const filters = Array.from(sourceData.filters.values());
-				return await sourceData.source.fetchItems(filters, this.plugin);
+
+				return await sourceData.source.fetchItems(this.plugin, allowedUris, this.selectedTags);
 			})
 		);
 		return results.flat().sort((a, b) =>
@@ -74,15 +68,33 @@ export class AtmosphereView extends ItemView {
 		);
 	}
 
+	private async getFilteredItemUris(): Promise<Set<string>> {
+		if (this.selectedCollections.size === 0) return new Set<string>();
+
+		const allowedUris = new Set<string>();
+
+		for (const [sourceType, sourceData] of this.sources) {
+			if (!this.activeSources.has(sourceType)) continue;
+			if (!sourceData.source.getCollectionAssociations) continue;
+
+			const associations = await sourceData.source.getCollectionAssociations();
+			for (const assoc of associations) {
+				if (this.selectedCollections.has(assoc.collection)) {
+					allowedUris.add(assoc.record);
+				}
+			}
+		}
+		return allowedUris;
+	}
+
 	async render() {
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("atmosphere-view");
 
-
 		if (!await this.plugin.checkAuth()) {
-			renderLoginMessage(container)
-			return
+			renderLoginMessage(container);
+			return;
 		}
 
 		this.renderHeader(container);
@@ -92,7 +104,6 @@ export class AtmosphereView extends ItemView {
 		try {
 			const items = await this.fetchItems();
 			loading.remove();
-
 
 			if (items.length === 0) {
 				container.createEl("p", { text: "No items found." });
@@ -118,7 +129,6 @@ export class AtmosphereView extends ItemView {
 	private async refresh() {
 		this.plugin.client.clearCache();
 		await this.render();
-
 	}
 
 	private renderHeader(container: HTMLElement) {
@@ -127,7 +137,7 @@ export class AtmosphereView extends ItemView {
 		const topRow = header.createEl("div", { cls: "atmosphere-header-top-row" });
 
 		const sourceSelector = topRow.createEl("div", { cls: "atmosphere-source-selector" });
-		const sources: SourceType[] = ["semble", "margin", "bookmark"];
+		const sources: SourceName[] = ["semble", "margin", "bookmark"];
 
 		for (const source of sources) {
 			const label = sourceSelector.createEl("label", { cls: "atmosphere-source-option" });
@@ -154,7 +164,7 @@ export class AtmosphereView extends ItemView {
 
 		const refreshBtn = topRow.createEl("button", {
 			cls: "atmosphere-refresh-btn",
-			attr: { "aria-label": "Refresh bookmarks" }
+			attr: { "aria-label": "Refresh bookmarks" },
 		});
 		setIcon(refreshBtn, "refresh-cw");
 		refreshBtn.addEventListener("click", () => {
@@ -169,18 +179,34 @@ export class AtmosphereView extends ItemView {
 	private renderFilters(container: HTMLElement) {
 		const filtersEl = container.createEl("div", { cls: "atmosphere-filters" });
 
-		const collectionSources = (["semble", "margin"] as SourceType[]).filter(s => this.activeSources.has(s));
+		const collectionSources = (["semble", "margin"] as SourceName[]).filter(s => this.activeSources.has(s));
 		if (collectionSources.length > 0) {
 			this.renderCollectionsFilter(filtersEl, collectionSources);
 		}
 
-		const tagSources = (["margin", "bookmark"] as SourceType[]).filter(s => this.activeSources.has(s));
+		const tagSources = (["margin", "bookmark"] as SourceName[]).filter(s => this.activeSources.has(s));
 		if (tagSources.length > 0) {
 			this.renderTagsFilter(filtersEl, tagSources);
 		}
 	}
 
-	private renderCollectionsFilter(container: HTMLElement, collectionSources: SourceType[]) {
+	private async fetchAllCollections(sources: SourceName[]): Promise<SourceFilter[]> {
+		const results = await Promise.all(
+			sources.map(s => this.sources.get(s)?.source.getAvailableCollections?.() ?? Promise.resolve([]))
+		);
+		const seen = new Set<string>();
+		return results.flat().filter(c => !seen.has(c.value) && Boolean(seen.add(c.value)));
+	}
+
+	private async fetchAllTags(sources: SourceName[]): Promise<SourceFilter[]> {
+		const results = await Promise.all(
+			sources.map(s => this.sources.get(s)?.source.getAvilableTags?.() ?? Promise.resolve([]))
+		);
+		const seen = new Set<string>();
+		return results.flat().filter(t => !seen.has(t.value) && Boolean(seen.add(t.value)));
+	}
+
+	private async renderCollectionsFilter(container: HTMLElement, collectionSources: SourceName[]) {
 		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
 
 		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
@@ -205,40 +231,35 @@ export class AtmosphereView extends ItemView {
 
 		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
 
-		const noFilter = collectionSources.every(s => {
-			const key = s === "semble" ? "sembleCollection" : "marginCollection";
-			return !this.sources.get(s)?.filters.has(key);
-		});
 		const allChip = chips.createEl("button", {
 			text: "All",
-			cls: `atmosphere-chip ${noFilter ? "atmosphere-chip-active" : ""}`,
+			cls: `atmosphere-chip ${this.selectedCollections.size === 0 ? "atmosphere-chip-active" : ""}`,
 		});
 		allChip.addEventListener("click", () => {
-			this.sources.get("semble")?.filters.delete("sembleCollection");
-			this.sources.get("margin")?.filters.delete("marginCollection");
+			this.selectedCollections.clear();
 			void this.render();
 		});
 
-		for (const sourceType of collectionSources) {
-			const sourceData = this.sources.get(sourceType);
-			if (!sourceData?.source.getAvailableCollections) continue;
-			void sourceData.source.getAvailableCollections().then(collections => {
-				for (const collection of collections) {
-					const isActive = sourceData.filters.get(collection.type)?.value === collection.value;
-					const chip = chips.createEl("button", {
-						text: collection.label ?? collection.value,
-						cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
-					});
-					chip.addEventListener("click", () => {
-						sourceData.filters.set(collection.type, collection);
-						void this.render();
-					});
+		const collections = await this.fetchAllCollections(collectionSources);
+
+		for (const collection of collections) {
+			const isActive = this.selectedCollections.has(collection.value);
+			const chip = chips.createEl("button", {
+				text: collection.label ?? collection.value,
+				cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
+			});
+			chip.addEventListener("click", () => {
+				if (this.selectedCollections.has(collection.value)) {
+					this.selectedCollections.delete(collection.value);
+				} else {
+					this.selectedCollections.add(collection.value);
 				}
+				void this.render();
 			});
 		}
 	}
 
-	private renderTagsFilter(container: HTMLElement, tagSources: SourceType[]) {
+	private async renderTagsFilter(container: HTMLElement, tagSources: SourceName[]) {
 		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
 
 		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
@@ -255,35 +276,30 @@ export class AtmosphereView extends ItemView {
 
 		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
 
-		const noFilter = tagSources.every(s => {
-			const key = s === "margin" ? "marginTag" : "bookmarkTag";
-			return !this.sources.get(s)?.filters.has(key);
-		});
 		const allChip = chips.createEl("button", {
 			text: "All",
-			cls: `atmosphere-chip ${noFilter ? "atmosphere-chip-active" : ""}`,
+			cls: `atmosphere-chip ${this.selectedTags.size === 0 ? "atmosphere-chip-active" : ""}`,
 		});
 		allChip.addEventListener("click", () => {
-			this.sources.get("margin")?.filters.delete("marginTag");
-			this.sources.get("bookmark")?.filters.delete("bookmarkTag");
+			this.selectedTags.clear();
 			void this.render();
 		});
 
-		for (const sourceType of tagSources) {
-			const sourceData = this.sources.get(sourceType);
-			if (!sourceData?.source.getAvilableTags) continue;
-			void sourceData.source.getAvilableTags().then(tags => {
-				for (const tag of tags) {
-					const isActive = sourceData.filters.get(tag.type)?.value === tag.value;
-					const chip = chips.createEl("button", {
-						text: tag.label ?? tag.value,
-						cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
-					});
-					chip.addEventListener("click", () => {
-						sourceData.filters.set(tag.type, tag);
-						void this.render();
-					});
+		const tags = await this.fetchAllTags(tagSources);
+
+		for (const tag of tags) {
+			const isActive = this.selectedTags.has(tag.value);
+			const chip = chips.createEl("button", {
+				text: tag.label ?? tag.value,
+				cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
+			});
+			chip.addEventListener("click", () => {
+				if (this.selectedTags.has(tag.value)) {
+					this.selectedTags.delete(tag.value);
+				} else {
+					this.selectedTags.add(tag.value);
 				}
+				void this.render();
 			});
 		}
 	}
@@ -292,7 +308,6 @@ export class AtmosphereView extends ItemView {
 		const el = container.createEl("div", { cls: "atmosphere-item" });
 
 		el.addEventListener("click", (e) => {
-			// Don't open detail if clicking the edit button
 			if ((e.target as HTMLElement).closest(".atmosphere-item-edit-btn")) {
 				return;
 			}
@@ -329,7 +344,6 @@ export class AtmosphereView extends ItemView {
 			cls: "atmosphere-date",
 		});
 
-		// Show note indicator for items with attached notes (semble cards)
 		const notes = item.getAttachedNotes?.();
 		if (notes && notes.length > 0) {
 			const noteIndicator = footer.createEl("div", { cls: "atmosphere-note-indicator" });
@@ -337,7 +351,7 @@ export class AtmosphereView extends ItemView {
 			setIcon(icon, "message-square");
 			noteIndicator.createEl("span", {
 				text: `${notes.length} note${notes.length > 1 ? 's' : ''}`,
-				cls: "atmosphere-note-count"
+				cls: "atmosphere-note-count",
 			});
 		}
 	}

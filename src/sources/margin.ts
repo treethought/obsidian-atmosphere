@@ -2,7 +2,7 @@ import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import type AtmospherePlugin from "../main";
 import { getMarginBookmarks, getMarginCollections, getMarginCollectionItems } from "../lib";
-import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
+import type { ATBookmarkItem, CollectionAssociation, DataSource, SourceFilter } from "./types";
 import type { Main as MarginBookmark } from "../lexicons/types/at/margin/bookmark";
 import type { Main as MarginCollection } from "../lexicons/types/at/margin/collection";
 import type { Main as MarginCollectionItem } from "../lexicons/types/at/margin/collectionItem";
@@ -146,13 +146,16 @@ export class MarginSource implements DataSource {
 		this.repo = repo;
 	}
 
-	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
+	async fetchItems(plugin: AtmospherePlugin, filteredCollections: Set<string>, filteredTags: Set<string>): Promise<ATBookmarkItem[]> {
 		const bookmarksResp = await getMarginBookmarks(this.client, this.repo);
 		if (!bookmarksResp.ok) return [];
 
 		let bookmarks = bookmarksResp.data.records as MarginBookmarkRecord[];
 
-		// Build collections map (bookmark URI -> collection info)
+		// Build collections map (annotation URI -> collection info) for display on items
+		//
+		// TODO prbly want to remove these calls to get collection links
+		// may wan tot just handle this in bookmarks view via getCollectionAssociations
 		const collectionsMap = new Map<string, Array<{ uri: string; name: string }>>();
 		const collectionsResp = await getMarginCollections(this.client, this.repo);
 		const itemsResp = await getMarginCollectionItems(this.client, this.repo);
@@ -166,34 +169,22 @@ export class MarginSource implements DataSource {
 
 			const items = itemsResp.data.records as MarginCollectionItemRecord[];
 			for (const item of items) {
-				const bookmarkUri = item.value.annotation;
-				const collectionUri = item.value.collection;
-				const collectionName = collectionNameMap.get(collectionUri);
-
+				const collectionName = collectionNameMap.get(item.value.collection);
 				if (collectionName) {
-					const existing = collectionsMap.get(bookmarkUri) || [];
-					existing.push({ uri: collectionUri, name: collectionName });
-					collectionsMap.set(bookmarkUri, existing);
+					const existing = collectionsMap.get(item.value.annotation) || [];
+					existing.push({ uri: item.value.collection, name: collectionName });
+					collectionsMap.set(item.value.annotation, existing);
 				}
 			}
 		}
 
-		const collectionFilter = filters.find(f => f.type === "marginCollection");
-		if (collectionFilter && collectionFilter.value) {
-			if (itemsResp.ok) {
-				const items = itemsResp.data.records as MarginCollectionItemRecord[];
-				const filteredItems = items.filter((item: MarginCollectionItemRecord) =>
-					item.value.collection === collectionFilter.value
-				);
-				const bookmarkUris = new Set(filteredItems.map((item: MarginCollectionItemRecord) => item.value.annotation));
-				bookmarks = bookmarks.filter((bookmark: MarginBookmarkRecord) => bookmarkUris.has(bookmark.uri));
-			}
+		if (filteredCollections !== undefined) {
+			bookmarks = bookmarks.filter((bookmark: MarginBookmarkRecord) => filteredCollections.has(bookmark.uri));
 		}
 
-		const tagFilter = filters.find(f => f.type === "marginTag");
-		if (tagFilter && tagFilter.value) {
+		if (filteredTags.size > 0) {
 			bookmarks = bookmarks.filter((record: MarginBookmarkRecord) =>
-				record.value.tags?.includes(tagFilter.value)
+				record.value.tags?.some(t => filteredTags.has(t))
 			);
 		}
 
@@ -207,11 +198,20 @@ export class MarginSource implements DataSource {
 
 		const collections = collectionsResp.data.records as MarginCollectionRecord[];
 		return collections.map((c: MarginCollectionRecord) => ({
-			type: "marginCollection",
 			value: c.uri,
 			label: c.value.name,
 		}));
 	}
+	async getCollectionAssociations(): Promise<CollectionAssociation[]> {
+		const itemsResp = await getMarginCollectionItems(this.client, this.repo);
+		if (!itemsResp.ok) return [];
+
+		return (itemsResp.data.records as MarginCollectionItemRecord[]).map(item => ({
+			record: item.value.annotation,
+			collection: item.value.collection,
+		}));
+	}
+
 	async getAvilableTags(): Promise<SourceFilter[]> {
 		const resp = await getMarginBookmarks(this.client, this.repo);
 		if (!resp.ok) return [];
@@ -224,11 +224,7 @@ export class MarginSource implements DataSource {
 				record.value.tags.forEach(tag => tagSet.add(tag));
 			}
 		});
-		return Array.from(tagSet).map(tag => ({
-			type: "marginTag",
-			value: tag,
-			label: tag,
-		}));
+		return Array.from(tagSet).map(tag => ({ value: tag, label: tag }));
 
 	}
 

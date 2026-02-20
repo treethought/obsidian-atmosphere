@@ -155,16 +155,17 @@ export class BookmarkSource implements DataSource {
 		this.repo = repo;
 	}
 
-	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
+	async fetchItems(plugin: AtmospherePlugin, _filteredCollections: Set<string> | undefined, filteredTags: Set<string>): Promise<ATBookmarkItem[]> {
 		const bookmarksResp = await getBookmarks(this.client, this.repo);
 		if (!bookmarksResp.ok) return [];
 
 		let bookmarks = bookmarksResp.data.records as BookmarkRecord[];
 
-		const tagFilter = filters.find(f => f.type === "bookmarkTag");
-		if (tagFilter && tagFilter.value) {
+		// no collecitons for community bookmarks
+
+		if (filteredTags.size > 0) {
 			bookmarks = bookmarks.filter((record: BookmarkRecord) =>
-				record.value.tags?.includes(tagFilter.value)
+				record.value.tags?.some(t => filteredTags.has(t))
 			);
 		}
 
@@ -185,11 +186,7 @@ export class BookmarkSource implements DataSource {
 			}
 		}
 
-		return Array.from(tagSet).map(tag => ({
-			type: "bookmarkTag",
-			value: tag,
-			label: tag,
-		}));
+		return Array.from(tagSet).map(tag => ({ value: tag, label: tag }));
 	}
 
 }
