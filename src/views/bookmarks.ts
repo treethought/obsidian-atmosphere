@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
+import { ItemView, WorkspaceLeaf, setIcon, Menu } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { CardDetailModal } from "../components/cardDetailModal";
 import { CreateCollectionModal } from "../components/createCollectionModal";
@@ -248,52 +248,64 @@ export class AtmosphereView extends ItemView {
 		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
 
 		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-		titleRow.createEl("h3", { text: "Collections", cls: "atmosphere-filter-title" });
 
+		const pickerBtn = titleRow.createEl("button", {
+			cls: "atmosphere-filter-picker-btn",
+			attr: { "aria-label": "Filter collections" },
+		});
+		setIcon(pickerBtn, "folder");
+		pickerBtn.createEl("span", { text: "Collections", cls: "atmosphere-filter-title" });
+
+		const actions = titleRow.createEl("div", { cls: "atmosphere-filter-actions" });
 		if (collectionSources.includes("semble")) {
-			const btn = titleRow.createEl("button", {
+			const btn = actions.createEl("button", {
 				cls: "atmosphere-filter-create-btn",
 				attr: { "aria-label": "New Semble collection" },
 			});
 			setIcon(btn, "plus");
-			btn.addEventListener("click", () => new CreateCollectionModal(this.plugin, () => void this.refresh()).open());
+			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateCollectionModal(this.plugin, () => void this.refresh()).open(); });
 		}
 		if (collectionSources.includes("margin")) {
-			const btn = titleRow.createEl("button", {
+			const btn = actions.createEl("button", {
 				cls: "atmosphere-filter-create-btn",
 				attr: { "aria-label": "New Margin collection" },
 			});
 			setIcon(btn, "plus");
-			btn.addEventListener("click", () => new CreateMarginCollectionModal(this.plugin, () => void this.refresh()).open());
+			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateMarginCollectionModal(this.plugin, () => void this.refresh()).open(); });
 		}
-
-		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allChip = chips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${this.selectedCollections.size === 0 ? "atmosphere-chip-active" : ""}`,
+		pickerBtn.addEventListener("click", async (e) => {
+			e.stopPropagation();
+			const collections = (await this.fetchAllCollections(collectionSources))
+				.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
+			const menu = new Menu();
+			for (const c of collections) {
+				menu.addItem(item => item
+					.setTitle(c.label ?? c.value)
+					.setChecked(this.selectedCollections.has(c.value))
+					.onClick(() => {
+						if (this.selectedCollections.has(c.value)) this.selectedCollections.delete(c.value);
+						else this.selectedCollections.add(c.value);
+						void this.render();
+					})
+				);
+			}
+			menu.showAtMouseEvent(e);
 		});
-		allChip.addEventListener("click", () => {
-			this.selectedCollections.clear();
-			void this.render();
-		});
 
-		const collections = await this.fetchAllCollections(collectionSources);
-
-		for (const collection of collections) {
-			const isActive = this.selectedCollections.has(collection.value);
-			const chip = chips.createEl("button", {
-				text: collection.label ?? collection.value,
-				cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
-			});
-			chip.addEventListener("click", () => {
-				if (this.selectedCollections.has(collection.value)) {
-					this.selectedCollections.delete(collection.value);
-				} else {
-					this.selectedCollections.add(collection.value);
-				}
-				void this.render();
-			});
+		if (this.selectedCollections.size > 0) {
+			const chipsRow = section.createEl("div", { cls: "atmosphere-filter-active-chips" });
+			const collections = await this.fetchAllCollections(collectionSources);
+			for (const c of collections) {
+				if (!this.selectedCollections.has(c.value)) continue;
+				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
+				chip.createEl("span", { text: c.label ?? c.value });
+				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${c.label ?? c.value}` } });
+				setIcon(x, "x");
+				x.addEventListener("click", () => {
+					this.selectedCollections.delete(c.value);
+					void this.render();
+				});
+			}
 		}
 	}
 
@@ -301,44 +313,56 @@ export class AtmosphereView extends ItemView {
 		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
 
 		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-		titleRow.createEl("h3", { text: "Tags", cls: "atmosphere-filter-title" });
 
+		const pickerBtn = titleRow.createEl("button", {
+			cls: "atmosphere-filter-picker-btn",
+			attr: { "aria-label": "Filter tags" },
+		});
+		setIcon(pickerBtn, "tag");
+		pickerBtn.createEl("span", { text: "Tags", cls: "atmosphere-filter-title" });
+
+		const actions = titleRow.createEl("div", { cls: "atmosphere-filter-actions" });
 		if (tagSources.includes("bookmark")) {
-			const btn = titleRow.createEl("button", {
+			const btn = actions.createEl("button", {
 				cls: "atmosphere-filter-create-btn",
 				attr: { "aria-label": "New tag" },
 			});
 			setIcon(btn, "plus");
-			btn.addEventListener("click", () => new CreateTagModal(this.plugin, () => void this.refresh()).open());
+			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateTagModal(this.plugin, () => void this.refresh()).open(); });
 		}
-
-		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allChip = chips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${this.selectedTags.size === 0 ? "atmosphere-chip-active" : ""}`,
+		pickerBtn.addEventListener("click", async (e) => {
+			e.stopPropagation();
+			const tags = (await this.fetchAllTags(tagSources))
+				.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
+			const menu = new Menu();
+			for (const t of tags) {
+				menu.addItem(item => item
+					.setTitle(t.label ?? t.value)
+					.setChecked(this.selectedTags.has(t.value))
+					.onClick(() => {
+						if (this.selectedTags.has(t.value)) this.selectedTags.delete(t.value);
+						else this.selectedTags.add(t.value);
+						void this.render();
+					})
+				);
+			}
+			menu.showAtMouseEvent(e);
 		});
-		allChip.addEventListener("click", () => {
-			this.selectedTags.clear();
-			void this.render();
-		});
 
-		const tags = await this.fetchAllTags(tagSources);
-
-		for (const tag of tags) {
-			const isActive = this.selectedTags.has(tag.value);
-			const chip = chips.createEl("button", {
-				text: tag.label ?? tag.value,
-				cls: `atmosphere-chip ${isActive ? "atmosphere-chip-active" : ""}`,
-			});
-			chip.addEventListener("click", () => {
-				if (this.selectedTags.has(tag.value)) {
-					this.selectedTags.delete(tag.value);
-				} else {
-					this.selectedTags.add(tag.value);
-				}
-				void this.render();
-			});
+		if (this.selectedTags.size > 0) {
+			const chipsRow = section.createEl("div", { cls: "atmosphere-filter-active-chips" });
+			const tags = await this.fetchAllTags(tagSources);
+			for (const t of tags) {
+				if (!this.selectedTags.has(t.value)) continue;
+				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
+				chip.createEl("span", { text: t.label ?? t.value });
+				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${t.label ?? t.value}` } });
+				setIcon(x, "x");
+				x.addEventListener("click", () => {
+					this.selectedTags.delete(t.value);
+					void this.render();
+				});
+			}
 		}
 	}
 
