@@ -145,7 +145,7 @@ export class AtmosphereView extends ItemView {
 			const grid = container.createEl("div", { cls: "atmosphere-grid" });
 			for (const item of items) {
 				try {
-					this.renderItem(grid, item);
+					void this.renderItem(grid, item);
 				} catch (err) {
 					const message = err instanceof Error ? err.message : String(err);
 					console.error(`Failed to render item ${item.getUri()}: ${message}`);
@@ -370,7 +370,7 @@ export class AtmosphereView extends ItemView {
 		menu.showAtMouseEvent(e);
 	}
 
-	private renderItem(container: HTMLElement, item: ATBookmarkItem) {
+	private async renderItem(container: HTMLElement, item: ATBookmarkItem) {
 		const el = container.createEl("div", { cls: "atmosphere-item" });
 
 		el.addEventListener("click", (e) => {
@@ -412,7 +412,7 @@ export class AtmosphereView extends ItemView {
 			}
 		}
 
-		const imageUrl = item.getImageUrl();
+		const imageUrl = await item.getImageUrl();
 		if (imageUrl) {
 			const img = content.createEl("img", { cls: "atmosphere-item-image" });
 			img.src = imageUrl;

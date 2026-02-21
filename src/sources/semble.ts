@@ -75,7 +75,7 @@ class SembleItem implements ATBookmarkItem {
 		return undefined;
 	}
 
-	getImageUrl(): string | undefined {
+	async getImageUrl(): Promise<string | undefined> {
 		const card = this.record.value;
 		if (card.type === "URL") {
 			return (card.content as UrlContent).metadata?.imageUrl || undefined;
