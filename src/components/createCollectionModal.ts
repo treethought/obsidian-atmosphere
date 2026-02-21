@@ -14,7 +14,7 @@ export class CreateCollectionModal extends Modal {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.availableSources = availableSources;
-		this.selectedSource = availableSources[0];
+		this.selectedSource = availableSources[0]!;
 		this.onSuccess = onSuccess;
 	}
 

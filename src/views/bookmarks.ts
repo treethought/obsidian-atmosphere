@@ -213,12 +213,12 @@ export class AtmosphereView extends ItemView {
 
 		const collectionSources = (["semble", "margin"] as SourceName[]).filter(s => this.activeSources.has(s));
 		if (collectionSources.length > 0) {
-			this.renderCollectionsFilter(filtersEl, collectionSources);
+			void this.renderCollectionsFilter(filtersEl, collectionSources);
 		}
 
 		const tagSources = (["margin", "bookmark"] as SourceName[]).filter(s => this.activeSources.has(s));
 		if (tagSources.length > 0) {
-			this.renderTagsFilter(filtersEl, tagSources);
+			void this.renderTagsFilter(filtersEl, tagSources);
 		}
 	}
 
@@ -269,25 +269,7 @@ export class AtmosphereView extends ItemView {
 				() => void this.refresh()
 			).open();
 		});
-		pickerBtn.addEventListener("click", async (e) => {
-			e.stopPropagation();
-			const collections = (await this.fetchAllCollections(collectionSources))
-				.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
-			const menu = new Menu();
-			for (const c of collections) {
-				menu.addItem(item => item
-					.setTitle(c.label ?? c.value)
-					.setIcon(sourceIconId(c.source))
-					.setChecked(this.selectedCollections.has(c.value))
-					.onClick(() => {
-						if (this.selectedCollections.has(c.value)) this.selectedCollections.delete(c.value);
-						else this.selectedCollections.add(c.value);
-						void this.render();
-					})
-				);
-			}
-			menu.showAtMouseEvent(e);
-		});
+		pickerBtn.addEventListener("click", (e) => void this.showCollectionsMenu(e, collectionSources));
 
 		if (this.selectedCollections.size > 0) {
 			const chipsRow = section.createEl("div", { cls: "atmosphere-filter-active-chips" });
@@ -327,25 +309,7 @@ export class AtmosphereView extends ItemView {
 			setIcon(btn, "plus");
 			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateTagModal(this.plugin, () => void this.refresh()).open(); });
 		}
-		pickerBtn.addEventListener("click", async (e) => {
-			e.stopPropagation();
-			const tags = (await this.fetchAllTags(tagSources))
-				.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
-			const menu = new Menu();
-			for (const t of tags) {
-				menu.addItem(item => item
-					.setTitle(t.label ?? t.value)
-					.setIcon(sourceIconId(t.source))
-					.setChecked(this.selectedTags.has(t.value))
-					.onClick(() => {
-						if (this.selectedTags.has(t.value)) this.selectedTags.delete(t.value);
-						else this.selectedTags.add(t.value);
-						void this.render();
-					})
-				);
-			}
-			menu.showAtMouseEvent(e);
-		});
+		pickerBtn.addEventListener("click", (e) => void this.showTagsMenu(e, tagSources));
 
 		if (this.selectedTags.size > 0) {
 			const chipsRow = section.createEl("div", { cls: "atmosphere-filter-active-chips" });
@@ -354,6 +318,7 @@ export class AtmosphereView extends ItemView {
 				if (!this.selectedTags.has(t.value)) continue;
 				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
 				setIcon(chip, sourceIconId(t.source))
+
 				chip.createEl("span", { text: t.label ?? t.value });
 				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${t.label ?? t.value}` } });
 				setIcon(x, "x");
@@ -363,6 +328,46 @@ export class AtmosphereView extends ItemView {
 				});
 			}
 		}
+	}
+
+	private async showCollectionsMenu(e: MouseEvent, sources: SourceName[]) {
+		e.stopPropagation();
+		const collections = (await this.fetchAllCollections(sources))
+			.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
+		const menu = new Menu();
+		for (const c of collections) {
+			menu.addItem(item => item
+				.setTitle(c.label ?? c.value)
+				.setIcon(sourceIconId(c.source))
+				.setChecked(this.selectedCollections.has(c.value))
+				.onClick(() => {
+					if (this.selectedCollections.has(c.value)) this.selectedCollections.delete(c.value);
+					else this.selectedCollections.add(c.value);
+					void this.render();
+				})
+			);
+		}
+		menu.showAtMouseEvent(e);
+	}
+
+	private async showTagsMenu(e: MouseEvent, sources: SourceName[]) {
+		e.stopPropagation();
+		const tags = (await this.fetchAllTags(sources))
+			.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
+		const menu = new Menu();
+		for (const t of tags) {
+			menu.addItem(item => item
+				.setTitle(t.label ?? t.value)
+				.setIcon(sourceIconId(t.source))
+				.setChecked(this.selectedTags.has(t.value))
+				.onClick(() => {
+					if (this.selectedTags.has(t.value)) this.selectedTags.delete(t.value);
+					else this.selectedTags.add(t.value);
+					void this.render();
+				})
+			);
+		}
+		menu.showAtMouseEvent(e);
 	}
 
 	private renderItem(container: HTMLElement, item: ATBookmarkItem) {
@@ -459,7 +464,7 @@ export class AtmosphereView extends ItemView {
 			const collectionIcon = collectionIndicator.createEl("span", { cls: "atmosphere-collection-indicator-icon" });
 			setIcon(collectionIcon, "folder");
 			collectionIndicator.createEl("span", {
-				text: collections.length === 1 ? collections[0].name : `${collections.length} collections`,
+				text: collections.length === 1 ? collections[0]!.name : `${collections.length} collections`,
 				cls: "atmosphere-collection-indicator-name",
 			});
 		}
