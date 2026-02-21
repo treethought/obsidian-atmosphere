@@ -2,7 +2,6 @@ import { ItemView, WorkspaceLeaf, setIcon, Menu } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { CardDetailModal } from "../components/cardDetailModal";
 import { CreateCollectionModal } from "../components/createCollectionModal";
-import { CreateMarginCollectionModal } from "../components/createMarginCollectionModal";
 import { CreateTagModal } from "../components/createTagModal";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types";
 import { SembleSource } from "../sources/semble";
@@ -250,23 +249,19 @@ export class AtmosphereView extends ItemView {
 		setIcon(pickerBtn, "folder");
 		pickerBtn.createEl("span", { text: "Collections", cls: "atmosphere-filter-title" });
 
-		const actions = titleRow.createEl("div", { cls: "atmosphere-filter-actions" });
-		if (collectionSources.includes("semble")) {
-			const btn = actions.createEl("button", {
-				cls: "atmosphere-filter-create-btn",
-				attr: { "aria-label": "New Semble collection" },
-			});
-			setIcon(btn, "plus");
-			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateCollectionModal(this.plugin, () => void this.refresh()).open(); });
-		}
-		if (collectionSources.includes("margin")) {
-			const btn = actions.createEl("button", {
-				cls: "atmosphere-filter-create-btn",
-				attr: { "aria-label": "New Margin collection" },
-			});
-			setIcon(btn, "plus");
-			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateMarginCollectionModal(this.plugin, () => void this.refresh()).open(); });
-		}
+		const btn = titleRow.createEl("button", {
+			cls: "atmosphere-filter-create-btn",
+			attr: { "aria-label": "New collection" },
+		});
+		setIcon(btn, "plus");
+		btn.addEventListener("click", (e) => {
+			e.stopPropagation();
+			new CreateCollectionModal(
+				this.plugin,
+				collectionSources as ("semble" | "margin")[],
+				() => void this.refresh()
+			).open();
+		});
 		pickerBtn.addEventListener("click", async (e) => {
 			e.stopPropagation();
 			const collections = (await this.fetchAllCollections(collectionSources))
@@ -315,9 +310,8 @@ export class AtmosphereView extends ItemView {
 		setIcon(pickerBtn, "tag");
 		pickerBtn.createEl("span", { text: "Tags", cls: "atmosphere-filter-title" });
 
-		const actions = titleRow.createEl("div", { cls: "atmosphere-filter-actions" });
 		if (tagSources.includes("bookmark")) {
-			const btn = actions.createEl("button", {
+			const btn = titleRow.createEl("button", {
 				cls: "atmosphere-filter-create-btn",
 				attr: { "aria-label": "New tag" },
 			});
