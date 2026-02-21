@@ -63,6 +63,7 @@ export class AtmosphereView extends ItemView {
 		const results = await Promise.all(
 			this.activeDatasources.map(async (source) => {
 				if (this.selectedTags.size > 0 && !source.getAvilableTags) return [];
+				if (this.selectedCollections.size > 0 && !source.getAvailableCollections) return [];
 				return source.fetchItems(this.plugin, allowedUris, this.selectedTags);
 			})
 		);
@@ -294,6 +295,7 @@ export class AtmosphereView extends ItemView {
 			for (const c of collections) {
 				if (!this.selectedCollections.has(c.value)) continue;
 				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
+				setIcon(chip, sourceIconId(c.source));
 				chip.createEl("span", { text: c.label ?? c.value });
 				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${c.label ?? c.value}` } });
 				setIcon(x, "x");
@@ -351,6 +353,7 @@ export class AtmosphereView extends ItemView {
 			for (const t of tags) {
 				if (!this.selectedTags.has(t.value)) continue;
 				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
+				setIcon(chip, sourceIconId(t.source))
 				chip.createEl("span", { text: t.label ?? t.value });
 				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${t.label ?? t.value}` } });
 				setIcon(x, "x");
