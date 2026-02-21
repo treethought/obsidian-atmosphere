@@ -5,7 +5,7 @@ import { CreateCollectionModal } from "../components/createCollectionModal";
 import { CreateTagModal } from "../components/createTagModal";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types";
 import { SembleSource } from "../sources/semble";
-import { BookmarkSource } from "../sources/bookmark";
+import { BookmarkSource } from "../sources/community";
 import { MarginSource } from "../sources/margin";
 import { renderLoginMessage } from "components/loginMessage";
 
@@ -13,7 +13,7 @@ export const VIEW_TYPE_ATMOSPHERE_BOOKMARKS = "atmosphere-bookmarks";
 
 type SourceName = "semble" | "bookmark" | "margin";
 
-export class AtmosphereView extends ItemView {
+export class BookmarksView extends ItemView {
 	plugin: AtmospherePlugin;
 	activeSources: Set<SourceName> = new Set(["semble"]);
 	selectedCollections: Set<string> = new Set();
