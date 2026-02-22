@@ -3,8 +3,8 @@ import type AtmospherePlugin from "../main";
 export interface ATBookmarkItem {
 	canAddNotes(): boolean;
 	canAddTags(): boolean;
+	canAddToCollections(): boolean;
 	canEdit(): boolean;
-	openEditModal(onSuccess?: () => void): void;
 	getUri(): string;
 	getCid(): string;
 	getCreatedAt(): string;
@@ -23,11 +23,13 @@ export interface ATBookmarkItem {
 export interface SourceFilter {
 	value: string;
 	label?: string;
+	description?: string;
 }
 
 export interface CollectionAssociation {
 	record: string;
 	collection: string;
+	linkUri: string;
 }
 
 export interface DataSource {
@@ -36,4 +38,8 @@ export interface DataSource {
 	getAvailableCollections?(): Promise<SourceFilter[]>;
 	getAvilableTags?(): Promise<SourceFilter[]>;
 	getCollectionAssociations?(): Promise<CollectionAssociation[]>;
+	deleteItem?(itemUri: string): Promise<void>;
+	addToCollection?(itemUri: string, itemCid: string, collectionUri: string): Promise<void>;
+	removeFromCollection?(linkUri: string): Promise<void>;
+	updateTags?(itemUri: string, tags: string[]): Promise<void>;
 }
