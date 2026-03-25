@@ -1,6 +1,6 @@
 import { Notice, TFile } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent, buildDocumentUrl } from "../lib";
+import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent, buildDocumentUrl, resolveWikilinks } from "../lib";
 import { PublicationSelection, SelectPublicationModal } from "../components/selectPublicationModal";
 import { type ResourceUri, } from "@atcute/lexicons";
 import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
@@ -137,15 +137,17 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 		throw new Error("Missing publication URI.");
 	}
 
+	const resolved = resolveWikilinks(content, plugin.app);
+
 	// TODO: determine which lexicon to use for rich content
 	// for now just check url
-	let textContent = stripMarkdown(content);
+	let textContent = stripMarkdown(resolved);
 
 	let richContent: PubLeafletContent.Main | BlogPcktContent.Main | null = null;
 	if (pub?.url.contains("leaflet.pub")) {
-		richContent = markdownToLeafletContent(content)
+		richContent = markdownToLeafletContent(resolved)
 	} else if (pub?.url.contains("pckt.blog")) {
-		richContent = markdownToPcktContent(content)
+		richContent = markdownToPcktContent(resolved)
 	}
 
 	let record = {

@@ -52,4 +52,5 @@ export type { Root, RootContent };
 
 export { markdownToPcktContent, pcktContentToMarkdown } from "./pckt";
 export { markdownToLeafletContent, leafletContentToMarkdown } from "./leaflet";
+export { resolveWikilinks } from "./wikilinks";
 

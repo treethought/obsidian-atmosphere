@@ -38,6 +38,7 @@ export {
 	stripMarkdown,
 	markdownToLeafletContent,
 	markdownToPcktContent,
+	resolveWikilinks,
 } from "./lib/markdown";
 
 export type ATRecord<T> = Record & { value: T };

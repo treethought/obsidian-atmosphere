@@ -28,7 +28,7 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
 		);
 		imageCache.set(url, match?.[1] ?? "");
 		return match?.[1];
-	} catch (e) {
+	} catch {
 		return undefined;
 	}
 }
