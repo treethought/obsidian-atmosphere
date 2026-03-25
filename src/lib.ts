@@ -1,6 +1,6 @@
 import { Record } from "@atcute/atproto/types/repo/listRecords";
 
-export { getRecord, deleteRecord, putRecord, getProfile } from "./lib/atproto";
+export { getRecord, deleteRecord, putRecord} from "./lib/atproto";
 
 export {
 	getSembleCollections,

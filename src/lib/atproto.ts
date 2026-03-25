@@ -42,8 +42,3 @@ export async function putRecord<T = unknown>(client: Client, repo: string, colle
 	}
 }
 
-export async function getProfile(client: Client, actor: string) {
-	return await client.get("app.bsky.actor.getProfile", {
-		params: { actor: actor as ActorIdentifier },
-	});
-}
