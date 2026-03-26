@@ -35,6 +35,7 @@
 		"@atcute/oauth-browser-client": "^3.0.0",
 		"@atcute/pckt": "^0.1.5",
 		"@atcute/standard-site": "^1.0.0",
+		"bluesky-post-embed": "^1.0.6",
 		"obsidian": "latest",
 		"remark-parse": "^11.0.0",
 		"remark-stringify": "^11.0.0",

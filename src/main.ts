@@ -6,6 +6,7 @@ import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardf
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
 import { registerIcons } from "./icons";
+import { BlueskyPostProcessor } from "./postprocessor";
 
 export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
@@ -15,6 +16,7 @@ export default class AtmospherePlugin extends Plugin {
 	async onload() {
 		registerIcons();
 		await this.loadSettings();
+
 		this.client = new ATClient();
 		this.clipper = new Clipper(this);
 
@@ -33,6 +35,9 @@ export default class AtmospherePlugin extends Plugin {
 				new Notice('Authentication error. Please try again.');
 			}
 		});
+
+		const bskyProcessor = new BlueskyPostProcessor();
+		this.registerMarkdownPostProcessor((el, ctx) => bskyProcessor.process(el, ctx));
 
 		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
 			return new BookmarksView(leaf, this);
