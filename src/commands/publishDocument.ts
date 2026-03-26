@@ -15,7 +15,7 @@ export async function publishFileAsDocument(plugin: AtmospherePlugin) {
 		return;
 	}
 
-	if (!plugin.client.loggedIn) {
+	if (!await plugin.checkAuth()) {
 		new Notice("Must login to publish document.");
 		return;
 	}
