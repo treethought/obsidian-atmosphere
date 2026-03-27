@@ -10,6 +10,8 @@ import {
 	PubLeafletRichtextFacet,
 } from "@atcute/leaflet";
 import { parseMarkdown, cleanPlaintext } from "../markdown";
+import { UrlToActorIdentifier, UrlToRecordUri, resolveHandleInAtUri } from "../../util";
+import { resolveActor } from "lib/identity";
 
 
 const textEncoder = new TextEncoder();
@@ -34,13 +36,14 @@ function createFacet(
 	};
 }
 
-function buildTextFromNodes(nodes: RootContent[]): {
+async function buildTextFromNodes(nodes: RootContent[]): Promise<{
 	text: string;
 	facets: PubLeafletRichtextFacet.Main[];
-} {
+}> {
 	let text = "";
 	let byteOffset = 0;
 	const facets: PubLeafletRichtextFacet.Main[] = [];
+	const pending: Promise<void>[] = [];
 
 	const appendText = (value: string) => {
 		if (!value) return;
@@ -94,7 +97,30 @@ function buildTextFromNodes(nodes: RootContent[]): {
 				for (const child of node.children) walk(child);
 				const end = byteOffset;
 				if (start < end && node.url) {
-					facets.push(createFacet(start, end, [{ $type: "pub.leaflet.richtext.facet#link", uri: node.url }]));
+					const recordUri = UrlToRecordUri(node.url);
+					const actorIdentifier = UrlToActorIdentifier(node.url);
+
+					if (recordUri) {
+						pending.push(
+							resolveHandleInAtUri(recordUri).then(resolvedUri => {
+								if (!resolvedUri) return;
+								facets.push(createFacet(start, end, [
+									{ $type: "pub.leaflet.richtext.facet#atMention", atURI: resolvedUri },
+								]));
+							})
+						);
+					} else if (actorIdentifier) {
+						pending.push(
+							resolveActor(actorIdentifier).then(actor => {
+								if (!actor) return;
+								facets.push(createFacet(start, end, [
+									{ $type: "pub.leaflet.richtext.facet#didMention", did: actor.did },
+								]));
+							})
+						);
+					} else {
+						facets.push(createFacet(start, end, [{ $type: "pub.leaflet.richtext.facet#link", uri: node.url }]));
+					}
 				}
 				return;
 			}
@@ -115,12 +141,12 @@ function buildTextFromNodes(nodes: RootContent[]): {
 	};
 
 	for (const node of nodes) walk(node);
-
+	await Promise.all(pending);
 	return { text, facets };
 }
 
-function buildTextBlock(node: { children?: RootContent[] }): PubLeafletBlocksText.Main & { $type: "pub.leaflet.blocks.text" } {
-	const { text, facets } = buildTextFromNodes(node.children ?? []);
+async function buildTextBlock(node: { children?: RootContent[] }): Promise<PubLeafletBlocksText.Main & { $type: "pub.leaflet.blocks.text" }> {
+	const { text, facets } = await buildTextFromNodes(node.children ?? []);
 	return {
 		$type: "pub.leaflet.blocks.text" as const,
 		plaintext: text,
@@ -129,12 +155,12 @@ function buildTextBlock(node: { children?: RootContent[] }): PubLeafletBlocksTex
 	};
 }
 
-export function markdownToLeafletContent(markdown: string): PubLeafletContent.Main {
+export async function markdownToLeafletContent(markdown: string): Promise<PubLeafletContent.Main> {
 	const tree = parseMarkdown(markdown);
 	const blocks: PubLeafletPagesLinearDocument.Block[] = [];
 
 	for (const node of tree.children) {
-		const block = convertNodeToBlock(node);
+		const block = await convertNodeToBlock(node);
 		if (block) blocks.push(block);
 	}
 
@@ -148,7 +174,7 @@ export function markdownToLeafletContent(markdown: string): PubLeafletContent.Ma
 	return record as PubLeafletContent.Main;
 }
 
-function convertListItem(item: ListItem): PubLeafletBlocksUnorderedList.ListItem {
+async function convertListItem(item: ListItem): Promise<PubLeafletBlocksUnorderedList.ListItem> {
 	const textChildren: RootContent[] = [];
 	const nestedLists: RootContent[] = [];
 
@@ -163,22 +189,22 @@ function convertListItem(item: ListItem): PubLeafletBlocksUnorderedList.ListItem
 	// handle text content and nested lists separately
 	const result: PubLeafletBlocksUnorderedList.ListItem = {
 		$type: "pub.leaflet.blocks.unorderedList#listItem",
-		content: buildTextBlock({ children: textChildren }),
+		content: await buildTextBlock({ children: textChildren }),
 	};
 
 	if (nestedLists.length > 0) {
-		result.children = nestedLists.flatMap((list) =>
-			(list as List).children.map(convertListItem)
+		result.children = await Promise.all(
+			nestedLists.flatMap((list) => (list as List).children.map(convertListItem))
 		);
 	}
 
 	return result;
 }
 
-function convertNodeToBlock(node: RootContent): PubLeafletPagesLinearDocument.Block | null {
+async function convertNodeToBlock(node: RootContent): Promise<PubLeafletPagesLinearDocument.Block | null> {
 	switch (node.type) {
 		case "heading": {
-			const { text, facets } = buildTextFromNodes(node.children);
+			const { text, facets } = await buildTextFromNodes(node.children);
 			return {
 				block: {
 					$type: "pub.leaflet.blocks.header",
@@ -192,7 +218,7 @@ function convertNodeToBlock(node: RootContent): PubLeafletPagesLinearDocument.Bl
 
 		case "paragraph":
 			return {
-				block: buildTextBlock(node),
+				block: await buildTextBlock(node),
 				alignment: "pub.leaflet.pages.linearDocument#textAlignLeft",
 			} as PubLeafletPagesLinearDocument.Block;
 
@@ -200,7 +226,7 @@ function convertNodeToBlock(node: RootContent): PubLeafletPagesLinearDocument.Bl
 			return {
 				block: {
 					$type: "pub.leaflet.blocks.unorderedList",
-					children: node.children.map(convertListItem),
+					children: await Promise.all(node.children.map(convertListItem)),
 				},
 				alignment: "pub.leaflet.pages.linearDocument#textAlignLeft",
 			};
@@ -223,7 +249,7 @@ function convertNodeToBlock(node: RootContent): PubLeafletPagesLinearDocument.Bl
 			};
 
 		case "blockquote": {
-			const { text, facets } = buildTextFromNodes(
+			const { text, facets } = await buildTextFromNodes(
 				node.children.flatMap((c) => ("children" in c ? c.children : []) as RootContent[])
 			);
 			return {
