@@ -1,5 +1,5 @@
 import { Component, MarkdownPostProcessorContext, setIcon } from "obsidian";
-import { BSKY_POST_RE, bskyPostATUri } from "lib";
+import { BSKY_POST_RE, bskyPostATUri } from "./util";
 
 
 export class BlueskyPostProcessor extends Component {

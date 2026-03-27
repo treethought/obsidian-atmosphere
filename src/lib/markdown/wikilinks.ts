@@ -25,7 +25,7 @@ export function resolveWikilinks(
 ): string {
 	return markdown.replace(
 		WIKILINK_RE,
-		(_match, noteName: string, heading: string | undefined, alias: string | undefined) => {
+		(_match, noteName: string, _heading: string | undefined, alias: string | undefined) => {
 			const displayText = (alias ?? noteName).trim();
 			const name = noteName.trim();
 
@@ -41,9 +41,9 @@ export function resolveWikilinks(
 				if (!fm?.atDocument || !fm?.url) {
 					return displayText;
 				}
-				baseUrl = fm.url as string;
-			}
 
+				baseUrl = fm.atDocument as string; // for AT uri mention in facets
+			}
 			// if (!baseUrl && gardenBaseUrl) {
 			// 	const base = gardenBaseUrl.replace(/\/$/, "");
 			// 	baseUrl = `${base}/notes/${titleToSlug(name)}`;
@@ -53,8 +53,11 @@ export function resolveWikilinks(
 				return displayText;
 			}
 
-			const url = heading ? `${baseUrl}#${titleToSlug(heading)}` : baseUrl;
-			return `[${displayText}](${url})`;
+			// TODO: can't add heading when using AT uri
+			// make configurable to use url (support heading) vs at uri
+
+			// const url = heading ? `${baseUrl}#${titleToSlug(heading)}` : baseUrl;
+			return `[${displayText}](${baseUrl})`;
 		}
 	);
 }
