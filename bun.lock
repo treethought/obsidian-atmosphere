@@ -16,6 +16,7 @@
         "@atcute/pckt": "^0.1.5",
         "@atcute/standard-site": "^1.0.0",
         "bluesky-post-embed": "^1.0.6",
+        "bluesky-profile-card-embed": "^1.0.1",
         "obsidian": "latest",
         "remark-parse": "^11.0.0",
         "remark-stringify": "^11.0.0",
@@ -39,6 +40,8 @@
     "@atcute/atproto": ["@atcute/atproto@3.1.10", "", { "dependencies": { "@atcute/lexicons": "^1.2.6" } }, "sha512-+GKZpOc0PJcdWMQEkTfg/rSNDAAHxmAUGBl60g2az15etqJn5WaUPNGFE2sB7hKpwi5Ue2h/L0OacINcE/JDDQ=="],
 
     "@atcute/bluesky": ["@atcute/bluesky@3.2.16", "", { "dependencies": { "@atcute/atproto": "^3.1.10", "@atcute/lexicons": "^1.2.7" } }, "sha512-phFAJNE+SCkIbCcgzjFxntS2KpGvzkLw0JA9qKIXlueF4wNreEt/D5HjnB5eRR9pV1/kcD94II9f7ZAwarf0lQ=="],
+
+    "@atcute/bluesky-richtext-parser": ["@atcute/bluesky-richtext-parser@1.0.7", "", {}, "sha512-nOvU699OXiGMbyswao7JJnY0C9WkwE7PVC/m5WWt0UN9fsXSOor9IZWw+v9SATp+94BTJoG38XyUomUaJnoQRA=="],
 
     "@atcute/bluesky-richtext-segmenter": ["@atcute/bluesky-richtext-segmenter@2.0.4", "", { "dependencies": { "@atcute/bluesky": "^3.2.5", "@atcute/lexicons": "^1.2.2" } }, "sha512-6m5QEAv4lU3qTy5MeJXJRRG33acipYJnMW1T7W/KrMyThGhQ7jSTTh8Z48quElgivgX7MDj6o/ow1oLUsjsCKw=="],
 
@@ -281,6 +284,8 @@
     "balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
     "bluesky-post-embed": ["bluesky-post-embed@1.0.6", "", { "dependencies": { "@atcute/bluesky": "^2.1.1", "@atcute/bluesky-richtext-segmenter": "^2.0.4", "@atcute/client": "^3.1.0" } }, "sha512-gJ+HKQbpDE+Mr7iv72NAF7WRNKu9CsWDwfbdgCtcZruN2HJfAeKHdCk5pflbz1fABwMMInjwN4909HCQjMCY2w=="],
+
+    "bluesky-profile-card-embed": ["bluesky-profile-card-embed@1.0.1", "", { "dependencies": { "@atcute/bluesky": "^2.1.1", "@atcute/bluesky-richtext-parser": "^1.0.7", "@atcute/client": "^3.1.0" } }, "sha512-6qmxuijphi1EcSkv7yVo7qLDUcYZ/lYnfyxxFqjPqMU227f7ROoNAown0iUoooX6tfWivNzdARR8pXGnmj3OOA=="],
 
     "brace-expansion": ["brace-expansion@1.1.12", "", { "dependencies": { "balanced-match": "^1.0.0", "concat-map": "0.0.1" } }, "sha512-9T9UjW3r0UW5c1Q7GTwllptXwhvYmEzFhzMfZ9H7FQWt+uZePjZPjBP/W1ZEyZ1twGWom5/56TF4lPcqjnDHcg=="],
 
@@ -847,6 +852,10 @@
     "bluesky-post-embed/@atcute/bluesky": ["@atcute/bluesky@2.1.1", "", { "peerDependencies": { "@atcute/client": "^3.0.0" } }, "sha512-wEZfFW58J6yC1SqHcVJOn4qbHENTTzjeCEWthRT5HvKovADLqk54HSMSAuXDMBUbintSTBr0khQNZQ3ZdgzDdQ=="],
 
     "bluesky-post-embed/@atcute/client": ["@atcute/client@3.1.0", "", {}, "sha512-+rQPsHXSf0DUm8XoHoaH7Y2E8tIpbsW84djyPj7dqAyrFIjvGuJ1X1DvMufwbTIcmLerdy+dzl34iZcz/h3Vhg=="],
+
+    "bluesky-profile-card-embed/@atcute/bluesky": ["@atcute/bluesky@2.1.1", "", { "peerDependencies": { "@atcute/client": "^3.0.0" } }, "sha512-wEZfFW58J6yC1SqHcVJOn4qbHENTTzjeCEWthRT5HvKovADLqk54HSMSAuXDMBUbintSTBr0khQNZQ3ZdgzDdQ=="],
+
+    "bluesky-profile-card-embed/@atcute/client": ["@atcute/client@3.1.0", "", {}, "sha512-+rQPsHXSf0DUm8XoHoaH7Y2E8tIpbsW84djyPj7dqAyrFIjvGuJ1X1DvMufwbTIcmLerdy+dzl34iZcz/h3Vhg=="],
 
     "eslint/@eslint/js": ["@eslint/js@9.39.2", "", {}, "sha512-q1mjIoW1VX4IvSocvM/vbTiveKC4k9eLrajNEuSsmjymSDEbpGddtpfOoN7YGAqBK3NG+uqo8ia4PDTt8buCYA=="],
 

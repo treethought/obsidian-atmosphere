@@ -3,13 +3,13 @@ import type { App } from "obsidian";
 // Matches [[Note]], [[Note|Alias]], [[Note#Heading]], [[Note#Heading|Alias]]
 const WIKILINK_RE = /\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g;
 
-function titleToSlug(title: string): string {
-	return title
-		.toLowerCase()
-		.trim()
-		.replace(/\s+/g, "-")
-		.replace(/[^a-z0-9-]/g, "");
-}
+// function titleToSlug(title: string): string {
+// 	return title
+// 		.toLowerCase()
+// 		.trim()
+// 		.replace(/\s+/g, "-")
+// 		.replace(/[^a-z0-9-]/g, "");
+// }
 
 /**
  * Resolves Obsidian wikilinks to standard markdown links.

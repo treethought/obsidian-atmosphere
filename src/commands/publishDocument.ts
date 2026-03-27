@@ -145,7 +145,7 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 
 	let richContent: PubLeafletContent.Main | BlogPcktContent.Main | null = null;
 	if (pub?.url.contains("leaflet.pub")) {
-		richContent = markdownToLeafletContent(resolved)
+		richContent = await markdownToLeafletContent(resolved)
 	} else if (pub?.url.contains("pckt.blog")) {
 		richContent = markdownToPcktContent(resolved)
 	}

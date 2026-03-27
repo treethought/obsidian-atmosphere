@@ -37,6 +37,20 @@ export async function fetchOgImage(url: string): Promise<string | undefined> {
 }
 
 export const BSKY_POST_RE = /https:\/\/bsky\.app\/profile\/([^/?#]+)\/post\/([A-Za-z0-9]+)/;
+export const BSKY_PROFILE_RE = /https:\/\/bsky\.app\/profile\/([^/?#]+)/;
+
+export function bskyProfileActor(url: string): ActorIdentifier | null {
+	const match = url.match(BSKY_PROFILE_RE);
+	if (!match) return null;
+
+	const [, handleOrDid] = match;
+	if (!handleOrDid) return null;
+
+	if (!isActorIdentifier(handleOrDid)) {
+		return null
+	}
+	return handleOrDid;
+}
 
 export function bskyPostATUri(url: string): ResourceUri | null {
 	const match = url.match(BSKY_POST_RE);
@@ -69,7 +83,7 @@ export function UrlToRecordUri(url: string): ResourceUri | null {
  * Given an AT URI that may contain a handle, resolve the handle to a DID
  * and return the canonical AT URI
  */
-export async function resolveHandleInAtUri(uri: ResourceUri): Promise<ResourceUri| null> {
+export async function resolveHandleInAtUri(uri: ResourceUri): Promise<ResourceUri | null> {
 	const parsed = parseResourceUri(uri);
 	if (!parsed.ok) return uri;
 
