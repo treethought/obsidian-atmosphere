@@ -26,7 +26,7 @@ export class CreateTagModal extends Modal {
 
 		const form = contentEl.createEl("form", { cls: "atmosphere-form" });
 
-		const tagGroup = form.createEl("div", { cls: "atmosphere-form-group" });
+		const tagGroup = form.createDiv({ cls: "atmosphere-form-group" });
 		tagGroup.createEl("label", { text: "Tag", attr: { for: "tag-value" } });
 		const tagInput = tagGroup.createEl("input", {
 			type: "text",
@@ -34,7 +34,7 @@ export class CreateTagModal extends Modal {
 			attr: { id: "tag-value", placeholder: "Tag name", required: "true" },
 		});
 
-		const actions = form.createEl("div", { cls: "atmosphere-modal-actions" });
+		const actions = form.createDiv({ cls: "atmosphere-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",

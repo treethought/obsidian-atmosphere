@@ -32,7 +32,7 @@ export class CreateCollectionModal extends Modal {
 		}
 
 		if (this.availableSources.length > 1) {
-			const toggleRow = contentEl.createEl("div", { cls: "atmosphere-source-toggle-row" });
+			const toggleRow = contentEl.createDiv({ cls: "atmosphere-source-toggle-row" });
 			for (const source of this.availableSources) {
 				const btn = toggleRow.createEl("button", {
 					text: source.charAt(0).toUpperCase() + source.slice(1),
@@ -45,7 +45,7 @@ export class CreateCollectionModal extends Modal {
 
 		const form = contentEl.createEl("form", { cls: "atmosphere-form" });
 
-		const nameGroup = form.createEl("div", { cls: "atmosphere-form-group" });
+		const nameGroup = form.createDiv({ cls: "atmosphere-form-group" });
 		nameGroup.createEl("label", { text: "Name", attr: { for: "collection-name" } });
 		const nameInput = nameGroup.createEl("input", {
 			type: "text",
@@ -55,7 +55,7 @@ export class CreateCollectionModal extends Modal {
 
 		let iconInput: HTMLInputElement | null = null;
 		if (this.selectedSource === "margin") {
-			const iconGroup = form.createEl("div", { cls: "atmosphere-form-group" });
+			const iconGroup = form.createDiv({ cls: "atmosphere-form-group" });
 			iconGroup.createEl("label", { text: "Icon (optional)", attr: { for: "collection-icon" } });
 			iconInput = iconGroup.createEl("input", {
 				type: "text",
@@ -64,14 +64,14 @@ export class CreateCollectionModal extends Modal {
 			});
 		}
 
-		const descGroup = form.createEl("div", { cls: "atmosphere-form-group" });
+		const descGroup = form.createDiv({ cls: "atmosphere-form-group" });
 		descGroup.createEl("label", { text: "Description", attr: { for: "collection-desc" } });
 		const descInput = descGroup.createEl("textarea", {
 			cls: "atmosphere-textarea",
 			attr: { id: "collection-desc", placeholder: "Optional description", rows: "3" },
 		});
 
-		const actions = form.createEl("div", { cls: "atmosphere-modal-actions" });
+		const actions = form.createDiv({ cls: "atmosphere-modal-actions" });
 		actions.createEl("button", {
 			text: "Cancel",
 			cls: "atmosphere-btn atmosphere-btn-secondary",

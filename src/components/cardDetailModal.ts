@@ -41,12 +41,12 @@ export class CardDetailModal extends Modal {
 			this.renderAddNoteForm(contentEl);
 		}
 
-		const footer = contentEl.createEl("div", { cls: "atmosphere-detail-footer" });
-		const footerLeft = footer.createEl("div", { cls: "atmosphere-detail-footer-left" });
+		const footer = contentEl.createDiv({ cls: "atmosphere-detail-footer" });
+		const footerLeft = footer.createDiv({ cls: "atmosphere-detail-footer-left" });
 		const source = this.item.getSource();
-		const sourceBadge = footerLeft.createEl("span", { cls: `atmosphere-badge atmosphere-badge-${source}` });
+		const sourceBadge = footerLeft.createSpan({ cls: `atmosphere-badge atmosphere-badge-${source}` });
 		setIcon(sourceBadge, sourceIconId(source));
-		footerLeft.createEl("span", {
+		footerLeft.createSpan({
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
 			cls: "atmosphere-detail-date",
 		});
@@ -62,7 +62,7 @@ export class CardDetailModal extends Modal {
 	}
 
 	private async renderBody(contentEl: HTMLElement) {
-		const body = contentEl.createEl("div", { cls: "atmosphere-detail-body" });
+		const body = contentEl.createDiv({ cls: "atmosphere-detail-body" });
 
 		const title = this.item.getTitle();
 		if (title) {
@@ -83,15 +83,15 @@ export class CardDetailModal extends Modal {
 
 		const siteName = this.item.getSiteName();
 		if (siteName) {
-			const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
-			const metaItem = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
-			metaItem.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
-			metaItem.createEl("span", { text: siteName, cls: "atmosphere-detail-meta-value" });
+			const metaGrid = body.createDiv({ cls: "atmosphere-detail-meta" });
+			const metaItem = metaGrid.createDiv({ cls: "atmosphere-detail-meta-item" });
+			metaItem.createSpan({ text: "Site", cls: "atmosphere-detail-meta-label" });
+			metaItem.createSpan({ text: siteName, cls: "atmosphere-detail-meta-value" });
 		}
 
 		const url = this.item.getUrl();
 		if (url) {
-			const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
+			const linkWrapper = body.createDiv({ cls: "atmosphere-detail-link-wrapper" });
 			const link = linkWrapper.createEl("a", {
 				text: url,
 				href: url,
@@ -104,23 +104,23 @@ export class CardDetailModal extends Modal {
 	private renderTagsSection(contentEl: HTMLElement) {
 		const tags = this.item.getTags();
 		if (tags.length === 0) return;
-		const section = contentEl.createEl("div", { cls: "atmosphere-detail-tags" });
+		const section = contentEl.createDiv({ cls: "atmosphere-detail-tags" });
 		section.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
-		const container = section.createEl("div", { cls: "atmosphere-item-tags" });
+		const container = section.createDiv({ cls: "atmosphere-item-tags" });
 		for (const tag of tags) {
-			container.createEl("span", { text: tag, cls: "atmosphere-tag" });
+			container.createSpan({ text: tag, cls: "atmosphere-tag" });
 		}
 	}
 
 	private renderCollectionsSection(contentEl: HTMLElement, collections: Array<{ uri: string; name: string; source: string }>) {
-		const section = contentEl.createEl("div", { cls: "atmosphere-detail-collections" });
-		section.createEl("span", { text: "In collections", cls: "atmosphere-detail-collections-label" });
-		const badges = section.createEl("div", { cls: "atmosphere-detail-collections-badges" });
+		const section = contentEl.createDiv({ cls: "atmosphere-detail-collections" });
+		section.createSpan({ text: "In collections", cls: "atmosphere-detail-collections-label" });
+		const badges = section.createDiv({ cls: "atmosphere-detail-collections-badges" });
 		for (const collection of collections) {
-			const badge = badges.createEl("span", { cls: "atmosphere-collection" });
-			const iconEl = badge.createEl("span", { cls: "atmosphere-collection-source-icon" });
+			const badge = badges.createSpan({ cls: "atmosphere-collection" });
+			const iconEl = badge.createSpan({ cls: "atmosphere-collection-source-icon" });
 			setIcon(iconEl, sourceIconId(collection.source as "semble" | "bookmark" | "margin"));
-			badge.createEl("span", { text: collection.name });
+			badge.createSpan({ text: collection.name });
 		}
 	}
 
@@ -128,14 +128,14 @@ export class CardDetailModal extends Modal {
 		const notes = this.item.getAttachedNotes?.();
 		if (!notes || notes.length === 0) return;
 
-		const notesSection = contentEl.createEl("div", { cls: "atmosphere-semble-detail-notes-section" });
+		const notesSection = contentEl.createDiv({ cls: "atmosphere-semble-detail-notes-section" });
 		notesSection.createEl("h3", { text: "Notes", cls: "atmosphere-detail-section-title" });
 
 		for (const note of notes) {
-			const noteEl = notesSection.createEl("div", { cls: "atmosphere-semble-detail-note" });
+			const noteEl = notesSection.createDiv({ cls: "atmosphere-semble-detail-note" });
 
-			const noteContent = noteEl.createEl("div", { cls: "atmosphere-semble-detail-note-content" });
-			const noteIcon = noteContent.createEl("span", { cls: "atmosphere-semble-detail-note-icon" });
+			const noteContent = noteEl.createDiv({ cls: "atmosphere-semble-detail-note-content" });
+			const noteIcon = noteContent.createSpan({ cls: "atmosphere-semble-detail-note-icon" });
 			setIcon(noteIcon, "message-square");
 			noteContent.createEl("p", { text: note.text, cls: "atmosphere-semble-detail-note-text" });
 
@@ -148,10 +148,10 @@ export class CardDetailModal extends Modal {
 	}
 
 	private renderAddNoteForm(contentEl: HTMLElement) {
-		const formSection = contentEl.createEl("div", { cls: "atmosphere-semble-detail-add-note" });
+		const formSection = contentEl.createDiv({ cls: "atmosphere-semble-detail-add-note" });
 		formSection.createEl("h3", { text: "Add a note", cls: "atmosphere-detail-section-title" });
 
-		const form = formSection.createEl("div", { cls: "atmosphere-semble-add-note-form" });
+		const form = formSection.createDiv({ cls: "atmosphere-semble-add-note-form" });
 
 		this.noteInput = form.createEl("textarea", {
 			cls: "atmosphere-textarea atmosphere-semble-note-input",

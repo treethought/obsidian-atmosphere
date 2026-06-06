@@ -45,24 +45,24 @@ export class SelectPublicationModal extends Modal {
 			}
 
 			// Create a list of publications
-			const listContainer = contentEl.createEl("div", { cls: "atmosphere-collection-list" });
+			const listContainer = contentEl.createDiv({ cls: "atmosphere-collection-list" });
 
 			for (const pub of pubs) {
-				const item = listContainer.createEl("div", { cls: "atmosphere-collection-item" });
+				const item = listContainer.createDiv({ cls: "atmosphere-collection-item" });
 
 				const publication = pub.value;
 
-				const info = item.createEl("div", { cls: "atmosphere-collection-item-info" });
-				info.createEl("div", { text: publication.name, cls: "atmosphere-collection-item-name" });
+				const info = item.createDiv({ cls: "atmosphere-collection-item-info" });
+				info.createDiv({ text: publication.name, cls: "atmosphere-collection-item-name" });
 
 				if (publication.description) {
-					info.createEl("div", {
+					info.createDiv({
 						text: publication.description,
 						cls: "atmosphere-collection-item-desc"
 					});
 				}
 
-				info.createEl("div", {
+				info.createDiv({
 					text: publication.url,
 					cls: "atmosphere-collection-item-desc"
 				});

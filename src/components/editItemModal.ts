@@ -123,18 +123,18 @@ export class EditItemModal extends Modal {
 	}
 
 	private renderForm(contentEl: HTMLElement) {
-		const form = contentEl.createEl("div", { cls: "atmosphere-form" });
+		const form = contentEl.createDiv({ cls: "atmosphere-form" });
 
 		if (this.item.canAddTags()) {
-			const tagsGroup = form.createEl("div", { cls: "atmosphere-form-group" });
+			const tagsGroup = form.createDiv({ cls: "atmosphere-form-group" });
 			tagsGroup.createEl("label", { text: "Tags" });
 
-			const tagsList = tagsGroup.createEl("div", { cls: "atmosphere-tag-list" });
+			const tagsList = tagsGroup.createDiv({ cls: "atmosphere-tag-list" });
 			for (const state of this.tagStates) {
 				this.addTagChip(tagsList, state);
 			}
 
-			const newTagRow = tagsGroup.createEl("div", { cls: "atmosphere-tag-row" });
+			const newTagRow = tagsGroup.createDiv({ cls: "atmosphere-tag-row" });
 			this.newTagInput = newTagRow.createEl("input", {
 				type: "text",
 				cls: "atmosphere-input",
@@ -157,7 +157,7 @@ export class EditItemModal extends Modal {
 		}
 
 		if (this.collectionStates.length > 0) {
-			const collectionsGroup = form.createEl("div", { cls: "atmosphere-form-group" });
+			const collectionsGroup = form.createDiv({ cls: "atmosphere-form-group" });
 			collectionsGroup.createEl("label", { text: "Collections" });
 
 			const searchInput = collectionsGroup.createEl("input", {
@@ -166,7 +166,7 @@ export class EditItemModal extends Modal {
 				attr: { placeholder: "Search collections..." },
 			});
 
-			const collectionsList = collectionsGroup.createEl("div", { cls: "atmosphere-collection-list" });
+			const collectionsList = collectionsGroup.createDiv({ cls: "atmosphere-collection-list" });
 
 			const rows: { el: HTMLElement; name: string }[] = [];
 			for (const state of this.collectionStates) {
@@ -176,13 +176,13 @@ export class EditItemModal extends Modal {
 				checkbox.checked = state.isSelected;
 				checkbox.addEventListener("change", () => { state.isSelected = checkbox.checked; });
 
-				const info = item.createEl("div", { cls: "atmosphere-collection-item-info" });
-				info.createEl("span", { text: state.name, cls: "atmosphere-collection-item-name" });
+				const info = item.createDiv({ cls: "atmosphere-collection-item-info" });
+				info.createSpan({ text: state.name, cls: "atmosphere-collection-item-name" });
 				if (state.description) {
-					info.createEl("span", { text: state.description, cls: "atmosphere-collection-item-desc" });
+					info.createSpan({ text: state.description, cls: "atmosphere-collection-item-desc" });
 				}
 
-				const sourceIcon = item.createEl("span", { cls: "atmosphere-collection-source-icon" });
+				const sourceIcon = item.createSpan({ cls: "atmosphere-collection-source-icon" });
 				setIcon(sourceIcon, state.source === "semble" ? "atmosphere-semble" : "atmosphere-margin");
 
 				rows.push({ el: item, name: state.name.toLowerCase() });
@@ -196,12 +196,12 @@ export class EditItemModal extends Modal {
 			});
 		}
 
-		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });
+		const actions = contentEl.createDiv({ cls: "atmosphere-modal-actions" });
 
 		actions.createEl("button", { text: "Delete", cls: "atmosphere-btn atmosphere-btn-danger" })
 			.addEventListener("click", () => { this.confirmDelete(contentEl); });
 
-		actions.createEl("div", { cls: "atmosphere-spacer" });
+		actions.createDiv({ cls: "atmosphere-spacer" });
 
 		actions.createEl("button", { text: "Cancel", cls: "atmosphere-btn atmosphere-btn-secondary" })
 			.addEventListener("click", () => { this.close(); });
@@ -215,7 +215,7 @@ export class EditItemModal extends Modal {
 		const checkbox = item.createEl("input", { type: "checkbox" });
 		checkbox.checked = state.isSelected;
 		checkbox.addEventListener("change", () => { state.isSelected = checkbox.checked; });
-		item.createEl("span", { text: state.tag });
+		item.createSpan({ text: state.tag });
 	}
 
 	private confirmDelete(contentEl: HTMLElement) {
@@ -223,7 +223,7 @@ export class EditItemModal extends Modal {
 		contentEl.createEl("h2", { text: "Delete item" });
 		contentEl.createEl("p", { text: "Are you sure you want to delete this item?", cls: "atmosphere-warning-text" });
 
-		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });
+		const actions = contentEl.createDiv({ cls: "atmosphere-modal-actions" });
 		actions.createEl("button", { text: "Cancel", cls: "atmosphere-btn atmosphere-btn-secondary" })
 			.addEventListener("click", () => { void this.onOpen(); });
 		actions.createEl("button", { text: "Delete", cls: "atmosphere-btn atmosphere-btn-danger" })

@@ -49,7 +49,7 @@ export class StandardFeedView extends ItemView {
 
 	async fetchAndRender(container: HTMLElement) {
 		const loading = container.createEl("p", { text: "Loading subscriptions..." });
-		const list = container.createEl("div", { cls: "standard-site-list" });
+		const list = container.createDiv({ cls: "standard-site-list" });
 
 		try {
 			const subsResp = await getSubscriptions(this.plugin.client, this.plugin.client.actor!.did);
@@ -80,23 +80,23 @@ export class StandardFeedView extends ItemView {
 	}
 
 	private renderPublicationCard(container: HTMLElement, pub: ATRecord<Publication>) {
-		const card = container.createEl("div", { cls: "standard-site-publication" });
+		const card = container.createDiv({ cls: "standard-site-publication" });
 
-		const header = card.createEl("div", { cls: "standard-site-publication-header" });
+		const header = card.createDiv({ cls: "standard-site-publication-header" });
 		header.createEl("h3", {
 			text: pub.value.name,
 			cls: "standard-site-publication-name"
 		});
-		const extLink = header.createEl("span", { cls: "clickable standard-site-publication-external" });
+		const extLink = header.createSpan({ cls: "clickable standard-site-publication-external" });
 		setIcon(extLink, "external-link");
 		extLink.addEventListener("click", (e) => {
 			e.stopPropagation();
 			window.open(pub.value.url, "_blank");
 		});
 
-		const body = card.createEl("div", { cls: "standard-site-publication-body" });
+		const body = card.createDiv({ cls: "standard-site-publication-body" });
 
-		const handleEl = body.createEl("span", { cls: "standard-site-author-handle", text: "..." });
+		const handleEl = body.createSpan({ cls: "standard-site-author-handle", text: "..." });
 		const parsed = parseResourceUri(pub.uri);
 		if (parsed.ok) {
 			this.plugin.client.getActor(parsed.value.repo).then(actor => {
@@ -110,7 +110,7 @@ export class StandardFeedView extends ItemView {
 			});
 		}
 
-		const urlLine = body.createEl("div", { cls: "standard-site-publication-url" });
+		const urlLine = body.createDiv({ cls: "standard-site-publication-url" });
 		const link = urlLine.createEl("a", { text: pub.value.url, href: pub.value.url });
 		link.setAttr("target", "_blank");
 
@@ -134,16 +134,16 @@ export class StandardFeedView extends ItemView {
 		container.empty();
 		container.addClass("standard-site-view");
 
-		const header = container.createEl("div", { cls: "standard-site-header" });
-		const backBtn = header.createEl("span", { text: "Back", cls: "clickable standard-site-back" });
+		const header = container.createDiv({ cls: "standard-site-header" });
+		const backBtn = header.createSpan({ text: "Back", cls: "clickable standard-site-back" });
 		setIcon(backBtn, "arrow-left");
 		backBtn.addEventListener("click", () => {
 			void this.render();
 		});
 
-		const titleGroup = header.createEl("div", { cls: "standard-site-title-group" });
+		const titleGroup = header.createDiv({ cls: "standard-site-title-group" });
 		titleGroup.createEl("h2", { text: pub.value.name });
-		const handleEl = titleGroup.createEl("span", { cls: "standard-site-author-handle", text: "..." });
+		const handleEl = titleGroup.createSpan({ cls: "standard-site-author-handle", text: "..." });
 
 		const parsed = parseResourceUri(pub.uri);
 		if (!parsed.ok) {
@@ -174,7 +174,7 @@ export class StandardFeedView extends ItemView {
 				return;
 			}
 
-			const list = container.createEl("div", { cls: "standard-site-list" });
+			const list = container.createDiv({ cls: "standard-site-list" });
 			for (const doc of docsResp.records) {
 				this.renderDocumentCard(list, doc, pub);
 			}
@@ -187,9 +187,9 @@ export class StandardFeedView extends ItemView {
 
 
 	private renderDocumentCard(container: HTMLElement, doc: ATRecord<Document>, pub: ATRecord<Publication>) {
-		const card = container.createEl("div", { cls: "standard-site-document" });
+		const card = container.createDiv({ cls: "standard-site-document" });
 
-		const header = card.createEl("div", { cls: "standard-site-document-header" });
+		const header = card.createDiv({ cls: "standard-site-document-header" });
 		header.createEl("h3", { text: doc.value.title, cls: "standard-site-document-title" });
 
 		let clipIcon = "book-open";
@@ -197,7 +197,7 @@ export class StandardFeedView extends ItemView {
 		if (isClipped) {
 			clipIcon = "book-open-check";
 		}
-		const clipBtn = header.createEl("span", { cls: "clickable standard-site-document-clip" });
+		const clipBtn = header.createSpan({ cls: "clickable standard-site-document-clip" });
 		if (isClipped) {
 			clipBtn.addClass("mod-success");
 			clipBtn.setAttribute("aria-label", "Already clipped");
@@ -218,7 +218,7 @@ export class StandardFeedView extends ItemView {
 
 
 		if (doc.value.path) {
-			const extLink = header.createEl("span", { cls: "clickable standard-site-document-external" });
+			const extLink = header.createSpan({ cls: "clickable standard-site-document-external" });
 			setIcon(extLink, "external-link");
 			const baseUrl = pub.value.url.replace(/\/+$/, "");
 			const path = doc.value.path.startsWith("/") ? doc.value.path : `/${doc.value.path}`;
@@ -228,28 +228,28 @@ export class StandardFeedView extends ItemView {
 			});
 		}
 
-		const body = card.createEl("div", { cls: "standard-site-document-body" });
+		const body = card.createDiv({ cls: "standard-site-document-body" });
 
 		if (doc.value.description) {
 			body.createEl("p", { text: doc.value.description, cls: "standard-site-document-description" });
 		}
 
 		if (doc.value.tags && doc.value.tags.length > 0) {
-			const tags = body.createEl("div", { cls: "standard-site-document-tags" });
+			const tags = body.createDiv({ cls: "standard-site-document-tags" });
 			for (const tag of doc.value.tags) {
-				tags.createEl("span", { text: tag, cls: "standard-site-document-tag" });
+				tags.createSpan({ text: tag, cls: "standard-site-document-tag" });
 			}
 		}
 
 		if (doc.value.publishedAt) {
-			const footer = card.createEl("div", { cls: "standard-site-document-footer" });
+			const footer = card.createDiv({ cls: "standard-site-document-footer" });
 			const date = new Date(doc.value.publishedAt).toLocaleDateString();
-			footer.createEl("span", { text: date, cls: "standard-site-document-date" });
+			footer.createSpan({ text: date, cls: "standard-site-document-date" });
 		}
 	}
 
 	renderHeader(container: HTMLElement) {
-		const header = container.createEl("div", { cls: "standard-site-header" });
+		const header = container.createDiv({ cls: "standard-site-header" });
 		header.createEl("h2", { text: "Subscriptions" });
 	}
 }
